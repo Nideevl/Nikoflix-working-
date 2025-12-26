@@ -86,11 +86,11 @@ export const playbackAccessMiddleware = async (req, res, next) => {
   /* ---- 1️⃣ Subscription check ---- */
   const { rows: subscriptionRows } = await query(
     `
-    SELECT 1
-    FROM subscriptions
-    WHERE user_id = $1
-      AND is_active = true
-      AND end_date > NOW()
+      SELECT 1
+      FROM subscriptions
+      WHERE user_id = $1
+        AND is_active = true
+        AND end_date > NOW();
     `,
     [userId]
   );
