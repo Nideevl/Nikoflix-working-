@@ -6,8 +6,9 @@ import contentRoutes from "./modules/content/content.routes.js";
 import adminRoutes from "./modules/admin/admin.routes.js";
 import playbackRoutes from "./modules/playback/playback.routes.js";
 import movieRoutes from "./modules/movies/movies.routes.js";
-import purchaseRoutes from "./modules/purchases/purchases.routes.js";
+import purchaseRoutes from "./modules/payments/payments.routes.js";
 import subscriptionsRoutes from "./modules/subscriptions/subscriptions.routes.js"
+import paymentsRoutes from "./modules/payments/payments.routes.js";
 
 const app = express(); // new Express application instance
 
@@ -30,6 +31,6 @@ app.use("/play", playbackRoutes);
 app.use("/content", contentRoutes);
 app.use('/auth', authRoutes);
 app.use("/comments", commentsRoutes);
-
+app.use("/payments", paymentsRoutes);
 
 export default app;

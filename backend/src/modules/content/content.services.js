@@ -15,7 +15,7 @@ export const getAllContent = async () => {
 export const getContentById = async (contentId) => {
   const { rows } = await query(
     `
-    SELECT content_id, title, type, is_premium
+    SELECT content_id, is_premium, price, type
     FROM content
     WHERE content_id = $1
     `,
