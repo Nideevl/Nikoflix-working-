@@ -147,7 +147,6 @@ export const createContentPaymentOrder = async (req, res) => {
       });
     }
 
-    // 3️⃣ Create payment order (mock)
     const payment = await paymentService.createContentPaymentOrder({
       userId,
       content
@@ -156,7 +155,9 @@ export const createContentPaymentOrder = async (req, res) => {
     res.status(201).json({
       payment_id: payment.payment_id,
       amount: payment.amount,
-      status: payment.status
+      status: payment.status,
+      qr_image_url: payment.qr_image_url, // Send to frontend to display
+      qr_id: payment.provider_order_id
     });
   } catch (err) {
     console.error(err);
@@ -164,4 +165,28 @@ export const createContentPaymentOrder = async (req, res) => {
       error: "Failed to create content payment order"
     });
   }
+};
+
+const order = await createRazorpayOrder({
+  userId,
+  amount: content.price, // in rupees
+  contentId: content.content_id
+});
+
+res.json(order);
+
+// For callback/webhook (recommended for production, but optional for demo)
+export const razorpayWebhook = async (req, res) => {
+  const signature = req.headers["x-razorpay-signature"];
+  const body = req.body;
+
+  if (body.event === "payment.captured") {
+    const payment = await getPaymentByOrderId(body.payload.payment.entity.order_id);
+    if (payment && payment.status !== "success") {
+      await markPaymentSuccess(payment.payment_id, body.payload.payment.entity.id);
+      await grantEntitlement(payment);
+    }
+  }
+
+  res.status(200).send("OK");
 };
