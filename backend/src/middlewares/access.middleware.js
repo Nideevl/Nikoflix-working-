@@ -5,21 +5,21 @@ import { query } from "../config/db.js";
  * Subscription OR direct purchase model
  */
 export const playbackAccessMiddleware = async (req, res, next) => {
-  const { movieId, episodeId } = req.params;
+  const { movie_id, episode_id } = req.params;
 
   let contentId;
 
   /* =========================
      RESOLVE PLAYABLE → CONTENT
   ========================== */
-  if (movieId) {
+  if (movie_id) {
     const { rows } = await query(
       `
       SELECT content_id
       FROM movies
       WHERE movie_id = $1
       `,
-      [movieId]
+      [movie_id]
     );
 
     if (rows.length === 0) {
@@ -29,14 +29,14 @@ export const playbackAccessMiddleware = async (req, res, next) => {
     contentId = rows[0].content_id;
   }
 
-  if (episodeId) {
+  if (episode_id) {
     const { rows } = await query(
       `
       SELECT content_id
       FROM episodes
       WHERE episode_id = $1
       `,
-      [episodeId]
+      [episode_id]
     );
 
     if (rows.length === 0) {

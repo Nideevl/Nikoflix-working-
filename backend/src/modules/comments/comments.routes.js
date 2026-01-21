@@ -4,20 +4,26 @@ import {
   createEpisodeComment,
   getCommentsByMovie,
   getCommentsByEpisode,
-  deleteComment
+  deleteComment,
+  likeComment,
+  unlikeComment
 } from "./comments.controller.js";
 
 const router = express.Router();
 
-// Create comment (USER ONLY – enforced in controller)
+// CREATE (USER ONLY – enforced in controller)
 router.post("/movie/:movieId", createMovieComment);
 router.post("/episode/:episodeId", createEpisodeComment);
 
-// Read comments
+// READ (PUBLIC)
 router.get("/movie/:movieId", getCommentsByMovie);
 router.get("/episode/:episodeId", getCommentsByEpisode);
 
-// Delete comment (owner only)
+// DELETE (USER ONLY)
 router.delete("/:commentId", deleteComment);
+
+router.post("/:commentId/like", likeComment);
+router.post("/:commentId/unlike", unlikeComment);
+
 
 export default router;

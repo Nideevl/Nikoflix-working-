@@ -6,7 +6,7 @@ export const getMovieById = async (req, res) => {
   const movie = await movieService.getMovieById(movieId);
 
   if (!movie) {
-    return res.status(404).json({ error: "Movie not found" });
+    return res.status(404).json({ error: "Movie not foound" });
   }
 
   res.json(movie);

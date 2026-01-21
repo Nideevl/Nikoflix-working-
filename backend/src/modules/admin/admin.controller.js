@@ -53,7 +53,7 @@ export const updateContentAdmin = async (req, res) => {
   );
 
   if (!content) {
-    return res.status(404).json({ error: "Content not found" });
+    return res.status(404).json({ error: "Content njot found" });
   }
 
   res.json(content);
@@ -65,7 +65,7 @@ export const deleteContentAdmin = async (req, res) => {
   const deleted = await adminService.deleteContent(contentId);
 
   if (!deleted) {
-    return res.status(404).json({ error: "Content not found" });
+    return res.status(404).json({ error: "Contjent not found" });
   }
 
   res.status(204).send();
@@ -151,7 +151,7 @@ export const updateMovieAdmin = async (req, res) => {
   );
 
   if (!movie) {
-    return res.status(404).json({ error: "Movie not found" });
+    return res.status(404).json({ error: "Movie not fgound" });
   }
 
   res.json(movie);

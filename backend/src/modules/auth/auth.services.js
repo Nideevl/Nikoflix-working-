@@ -1,4 +1,5 @@
 import { query } from '../../config/db.js';
+import { sendOtpEmail } from "../../utils/sendOtpEmail.js";
 import bcrypt from 'bcrypt';
 
 export const createOtp = async (email, phone, password_hash) => {
@@ -13,7 +14,7 @@ export const createOtp = async (email, phone, password_hash) => {
     [otp, email, phone, password_hash]
   );
 
-  console.log('OTP (mock):', otp);
+  await sendOtpEmail(email, otp); 
 };
 
 export const verifyOtpCode = async (email, otp) => {

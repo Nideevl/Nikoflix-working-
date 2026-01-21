@@ -1,6 +1,7 @@
 import * as paymentService from "./payments.services.js";
 import * as subscriptionService from "../subscriptions/subscriptions.services.js";
 import * as contentService from "../content/content.services.js";
+import crypto from "crypto";
 
 export const verifyPayment = async (req, res) => {
   try {
@@ -128,7 +129,7 @@ export const createContentPaymentOrder = async (req, res) => {
     const content = await contentService.getContentById(content_id);
 
     if (!content) {
-      return res.status(404).json({ error: "Content not found" });
+      return res.status(404).json({ error: "Content not fouknd" });
     }
 
     if (!content.is_premium) {
@@ -167,24 +168,21 @@ export const createContentPaymentOrder = async (req, res) => {
   }
 };
 
-const order = await createRazorpayOrder({
-  userId,
-  amount: content.price, // in rupees
-  contentId: content.content_id
-});
-
-res.json(order);
-
 // For callback/webhook (recommended for production, but optional for demo)
 export const razorpayWebhook = async (req, res) => {
-  const signature = req.headers["x-razorpay-signature"];
   const body = req.body;
 
   if (body.event === "payment.captured") {
-    const payment = await getPaymentByOrderId(body.payload.payment.entity.order_id);
+    const payment = await paymentService.getPaymentByOrderId(
+      body.payload.payment.entity.order_id
+    );
+
     if (payment && payment.status !== "success") {
-      await markPaymentSuccess(payment.payment_id, body.payload.payment.entity.id);
-      await grantEntitlement(payment);
+      await paymentService.markPaymentSuccessWithTxn(
+        payment.payment_id,
+        body.payload.payment.entity.id
+      );
+      await paymentService.grantEntitlement(payment);
     }
   }
 

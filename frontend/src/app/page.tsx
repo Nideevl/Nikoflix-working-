@@ -1,0 +1,8 @@
+export default function LandingPage() {
+  return (
+    <main>
+      <h1>NikoFlix</h1>
+      <p>Welcome to NikoFlix</p>
+    </main>
+  );
+}

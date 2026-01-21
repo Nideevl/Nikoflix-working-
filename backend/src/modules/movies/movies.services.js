@@ -6,10 +6,10 @@ export const getMovieById = async (movieId) => {
     SELECT
       m.movie_id,
       m.duration,
-      m.video_url,
       c.content_id,
       c.title,
-      c.is_premium
+      c.is_premium,
+      c.ingest_status
     FROM movies m
     JOIN content c ON c.content_id = m.content_id
     WHERE m.movie_id = $1

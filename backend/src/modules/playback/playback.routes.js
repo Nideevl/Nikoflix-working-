@@ -1,102 +1,126 @@
 import express from "express";
 import { playbackAccessMiddleware } from "../../middlewares/access.middleware.js";
+import { query } from "../../config/db.js";
+import { triggerIngest } from "../ingest/triggerIngest.js"
 
 const router = express.Router();
 
 // Movie playback
-router.get("/movie/:movieId",
-  playbackAccessMiddleware,
-  async (req, res) => {
-    const { movieId } = req.params;
+router.get("/movie/:movie_id", playbackAccessMiddleware, async (req, res) => {
+  const { movie_id } = req.params;
 
-    const { rows } = await db.query(`
-      SELECT
-        c.content_id,
-        c.ingest_status,
-        m.hls_manifest_url
-      FROM movies m
-      JOIN content c ON m.content_id = c.content_id
-      WHERE m.movie_id = $1
-    `, [movieId]);
+  const { rows } = await query(
+    `
+    SELECT
+      m.movie_id,
+      m.source_url AS source_url,
+      c.content_id,
+      c.ingest_status
+    FROM movies m
+    JOIN content c ON c.content_id = m.content_id
+    WHERE m.movie_id = $1
+    `,
+    [movie_id]
+  );
 
-    if (rows.length === 0) {
-      return res.status(404).json({ error: "Movie not found" });
-    }
-
-    const { content_id, ingest_status, hls_manifest_url } = rows[0];
-
-    // Update LRU access time (fire-and-forget)
-    await db.query(
-      `UPDATE content SET last_accessed_at = now() WHERE content_id = $1`,
-      [content_id]
-    );
-
-    if (ingest_status === "READY") {
-      return res.json({
-        status: "READY",
-        manifest_url: hls_manifest_url
-      });
-    }
-
-    if (ingest_status === "NOT_READY" || ingest_status === "EVICTED") {
-      await triggerIngest(content_id);
-      return res.status(202).json({ status: "PREPARING" });
-    }
-
-    if (ingest_status === "INGESTING") {
-      return res.status(202).json({ status: "PREPARING" });
-    }
-
-    return res.status(500).json({ error: "Unknown ingest state" });
+  if (rows.length === 0) {
+    return res.status(404).json({ error: "Movie not found" });
   }
-);
+
+  const { content_id, ingest_status, source_url } = rows[0];
+
+  // LRU update (non-blocking)
+  query(
+    `UPDATE content SET last_accessed_at = now() WHERE content_id = $1`,
+    [content_id]
+  ).catch(() => {});
+
+  if (ingest_status === "READY") {
+    return res.json({
+      status: "READY",
+      source: `https://nikoflix.b-cdn.net/movie/${movie_id}/master.m3u8`
+    });
+  }
+
+  if (ingest_status === "NOT_READY") {
+    await triggerIngest({
+      type: "movie",
+      content_id,
+      media_id: movie_id,   // ✅ FIX
+      source_url
+    });
+
+    return res.status(202).json({ status: "PREPARING" });
+  }
+
+  if (ingest_status === "INGESTING") {
+    return res.status(202).json({ status: "PREPARING" });
+  }
+
+  return res.status(409).json({
+    status: ingest_status,
+    error: "Content not available"
+  });
+});
+
 
 // Episode playback
-router.get("/episode/:episodeId",
-  playbackAccessMiddleware,
-  async (req, res) => {
-    const { episodeId } = req.params;
+router.get("/episode/:episode_id", playbackAccessMiddleware, async (req, res) => {
+  const { episode_id } = req.params;
 
-    const { rows } = await db.query(`
-      SELECT
-        c.content_id,
-        c.ingest_status,
-        e.hls_manifest_url
-      FROM episodes e
-      JOIN content c ON e.content_id = c.content_id
-      WHERE e.episode_id = $1
-    `, [episodeId]);
+  const { rows } = await query(
+    `
+    SELECT
+      e.episode_id,
+      e.source_url AS source_url,
+      c.content_id,
+      c.ingest_status
+    FROM episodes e
+    JOIN content c ON c.content_id = e.content_id
+    WHERE e.episode_id = $1
+    `,
+    [episode_id]
+  );
 
-    if (rows.length === 0) {
-      return res.status(404).json({ error: "Episode not found" });
-    }
-
-    const { content_id, ingest_status, hls_manifest_url } = rows[0];
-
-    await db.query(
-      `UPDATE content SET last_accessed_at = now() WHERE content_id = $1`,
-      [content_id]
-    );
-
-    if (ingest_status === "READY") {
-      return res.json({
-        status: "READY",
-        manifest_url: hls_manifest_url
-      });
-    }
-
-    if (ingest_status === "NOT_READY" || ingest_status === "EVICTED") {
-      await triggerIngest(content_id);
-      return res.status(202).json({ status: "PREPARING" });
-    }
-
-    if (ingest_status === "INGESTING") {
-      return res.status(202).json({ status: "PREPARING" });
-    }
-
-    return res.status(500).json({ error: "Unknown ingest state" });
+  if (rows.length === 0) {
+    return res.status(404).json({ error: "Episode not found" });
   }
-);
+
+  const { content_id, ingest_status, source_url } = rows[0];
+
+  query(
+    `UPDATE content SET last_accessed_at = now() WHERE content_id = $1`,
+    [content_id]
+  ).catch(() => {});
+
+  if (ingest_status === "READY") {
+    return res.json({
+      status: "READY",
+      source: `https://nikoflix.b-cdn.net/episode/${episode_id}/master.m3u8`
+    });
+  }
+
+  if (ingest_status === "NOT_READY") {
+    await triggerIngest({
+      type: "episode",
+      content_id,
+      media_id: episode_id, // ✅ FIX
+      source_url
+    });
+
+    return res.status(202).json({ status: "PREPARING" });
+  }
+
+  if (ingest_status === "INGESTING") {
+    return res.status(202).json({ status: "PREPARING" });
+  }
+
+  return res.status(409).json({
+    status: ingest_status,
+    error: "Content not available"
+  });
+});
+
 
 
 export default router;

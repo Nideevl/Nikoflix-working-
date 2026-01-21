@@ -1,9 +1,11 @@
+//auth.middleware.js
+
 import jwt from 'jsonwebtoken';
 import { v4 as uuid } from 'uuid';
 
 export const identityMiddleware = (req, res, next) => {
+  // 1️⃣ Logged-in user (JWT)
   const token = req.headers.authorization?.split(' ')[1];
-  const guestId = req.headers['x-guest-id'];
 
   if (token) {
     try {
@@ -15,14 +17,21 @@ export const identityMiddleware = (req, res, next) => {
     }
   }
 
-  if (guestId) {
-    req.identity = { type: 'guest', guest_id: guestId };
-    return next();
+  // 2️⃣ Guest via cookie (PERSISTENT)
+  let guestId = req.cookies?.guest_id;
+
+  if (!guestId) {
+    // 3️⃣ First-ever visit → create ONCE
+    guestId = uuid();
+
+    res.cookie('guest_id', guestId, {
+      httpOnly: true,
+      sameSite: 'lax',
+      secure: false, // true in production (https)
+      maxAge: 1000 * 60 * 60 * 24 * 365 // 1 year
+    });
   }
 
-  // Create new guest
-  const newGuestId = uuid();
-  req.identity = { type: 'guest', guest_id: newGuestId };
-  res.setHeader('X-Guest-Id', newGuestId);
+  req.identity = { type: 'guest', guest_id: guestId };
   next();
 };
