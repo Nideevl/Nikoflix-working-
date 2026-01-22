@@ -1,0 +1,318 @@
+/* Import a beautiful font from Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Manrope:wght@300;400;500;600&display=swap');
+
+/* ================= NETFLIX STYLE ANIMATIONS ================= */
+
+@keyframes slideInForward {
+  from {
+    opacity: 0;
+    transform: translateX(45px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInBack {
+  from {
+    opacity: 0;
+    transform: translateX(-45px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* ================= BASE STYLES WITH BEAUTIFUL TYPOGRAPHY ================= */
+
+.settings {
+  position: absolute;
+  bottom: 70px;
+  right: 20px;
+  background: rgba(20, 20, 20, 0.98);
+  color: #e5e5e5;
+  border-radius: 12px;
+  overflow: hidden;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-weight: 400;
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 
+    0 20px 60px rgba(0, 0, 0, 0.5),
+    0 0 0 1px rgba(255, 255, 255, 0.03);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  line-height: 1.5;
+}
+
+/* Different width classes for different views */
+.settingsMain {
+  width: 320px;
+}
+
+.settingsNarrow {
+  width: 240px;
+}
+
+.settingsWide {
+  width: 360px;
+}
+
+.content {
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+}
+
+.contentForward {
+  animation: slideInForward 0.28s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+.contentBack {
+  animation: slideInBack 0.28s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+/* ================= BUTTON ================= */
+
+.button {
+  position: absolute;
+  bottom: 16px;
+  right: 16px;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(229, 9, 20, 0.9), rgba(229, 9, 20, 0.7));
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: white;
+  font-size: 22px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(12px);
+  z-index: 1000;
+  font-family: inherit;
+  box-shadow: 
+    0 8px 24px rgba(229, 9, 20, 0.25),
+    0 0 0 1px rgba(255, 255, 255, 0.05);
+}
+
+.button:hover {
+  transform: scale(1.08) rotate(15deg);
+  background: linear-gradient(135deg, rgba(229, 9, 20, 1), rgba(229, 9, 20, 0.8));
+  box-shadow: 
+    0 12px 32px rgba(229, 9, 20, 0.35),
+    0 0 0 1px rgba(255, 255, 255, 0.1);
+}
+
+/* ================= BACK BUTTON ================= */
+
+.back {
+  padding: 16px 20px;
+  cursor: pointer;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  background: rgba(255, 255, 255, 0.02);
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.back:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.back::before {
+  content: "←";
+  font-size: 18px;
+  opacity: 0.8;
+}
+
+/* ================= ROWS AND ITEMS ================= */
+
+.row {
+  padding: 16px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  transition: all 0.2s ease;
+  font-size: 15px;
+}
+
+.row:hover {
+  background: rgba(255, 255, 255, 0.04);
+  padding-left: 22px;
+}
+
+.row span:first-child {
+  font-weight: 500;
+  letter-spacing: 0.01em;
+}
+
+.value {
+  opacity: 0.7;
+  font-weight: 400;
+  font-size: 14px;
+  letter-spacing: 0.02em;
+}
+
+/* ================= ITEMS CONTAINER ================= */
+
+.itemsContainer {
+}
+
+.item {
+  padding: 14px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 14.5px;
+}
+
+.item:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.itemText {
+  font-weight: 400;
+  opacity: 0.95;
+}
+
+/* ================= SPEED SECTION ================= */
+
+.customRow {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  padding: 20px;
+  transition: all 0.3s ease;
+}
+
+.customRow.active {
+  background: rgb(35, 35, 35);
+}
+
+.customRow.active .customLabel {
+  font-weight: 500;
+}
+
+.customLabel {
+  font-size: 15px;
+  font-weight: 500;
+  min-width: 70px;
+  letter-spacing: 0.02em;
+}
+
+.slider {
+  height: 6px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.1);
+  outline: none;
+  -webkit-appearance: none;
+  appearance: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.slider:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #e50914;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(229, 9, 20, 0.4);
+  transition: all 0.2s ease;
+}
+
+.slider::-webkit-slider-thumb:hover {
+  box-shadow: 0 3px 12px rgba(229, 9, 20, 0.6);
+}
+
+.slider::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #e50914;
+  cursor: pointer;
+  border: 2px solid rgba(255, 255, 255, 0.9);
+  box-shadow: 0 2px 8px rgba(229, 9, 20, 0.4);
+}
+
+.speedValue {
+  min-width: 50px;
+  text-align: center;
+  font-family: 'Inter', monospace;
+  font-weight: 600;
+  font-size: 14px;
+  letter-spacing: 0.02em;
+  padding: 4px 8px;
+  border-radius: 6px;
+}
+
+.speedGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  padding: 10px;
+}
+
+.speed {
+  text-align: center;
+  padding: 14px 8px;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 14.5px;
+  letter-spacing: 0.02em;
+  transition: all 0.2s ease;
+}
+
+.speed:hover {
+  background: rgba(33, 33, 33, 1);
+}
+
+.speed.active {
+  background: rgba(179, 0, 0, 0.612);
+  color: #ffffff;
+  font-weight: 600;
+}
+
+/* ================= RESPONSIVE ADJUSTMENTS ================= */
+
+@media (max-width: 400px) {
+  .settingsMain {
+    width: 280px;
+    right: 10px;
+  }
+  
+  .settingsNarrow {
+    width: 220px;
+    right: 10px;
+  }
+  
+  .settingsWide {
+    width: 300px;
+    right: 10px;
+  }
+  
+  .button {
+    width: 44px;
+    height: 44px;
+    right: 10px;
+    bottom: 10px;
+  }
+}

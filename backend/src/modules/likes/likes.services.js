@@ -41,7 +41,6 @@ export const getMovieLikeInfo = async (movieId, userId, guestId) => {
   );
 
   let liked = false;
-  console.log("count bg | user_id ",userId," | guest_id ",guestId);
 
   if (userId) {
     const { rowCount } = await query(
