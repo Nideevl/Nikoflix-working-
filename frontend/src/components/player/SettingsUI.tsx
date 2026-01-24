@@ -3,6 +3,7 @@
 import { useEffect, useState, useRef } from "react";
 import styles from "./settingsUI.module.css";
 import { Inter } from "next/font/google";
+import { Settings, Gauge, SlidersHorizontal, Captions, AudioLines, ChevronLeft, Check } from 'lucide-react';
 
 const inter = Inter({ subsets: ["latin"], weight: ["300", "400", "500", "600"] });
 
@@ -22,10 +23,42 @@ export default function SettingsUI() {
     const [currentQuality, setCurrentQuality] = useState(-1);
     const [currentAudio, setCurrentAudio] = useState(0);
     const [currentSub, setCurrentSub] = useState(-1);
+    const [mounted, setMounted] = useState(false);
 
     const [presetSpeed, setPresetSpeed] = useState<number | null>(1); // selected preset
     const [customSpeed, setCustomSpeed] = useState(1); // slider value
     const sliderRef = useRef<HTMLInputElement | null>(null);
+    const panelRef = useRef<HTMLDivElement | null>(null);
+    const buttonRef = useRef<HTMLButtonElement | null>(null);
+
+    useEffect(() => {
+        setMounted(true);
+    }, []);
+
+    useEffect(() => {
+        function handleClickOutside(e: MouseEvent) {
+            if (!panelRef.current || !buttonRef.current) return;
+
+            const target = e.target as Node;
+
+            const clickedInsidePanel = panelRef.current.contains(target);
+            const clickedButton = buttonRef.current.contains(target);
+
+            if (!clickedInsidePanel && !clickedButton) {
+                setOpen(false);
+                setView("main");
+            }
+        }
+
+        if (open) {
+            document.addEventListener("mousedown", handleClickOutside);
+        }
+
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, [open]);
+
 
     useEffect(() => {
         if (!open) return;
@@ -67,6 +100,11 @@ export default function SettingsUI() {
             setPresetSpeed(null); // custom mode active
             setCustomSpeed(speed);
         }
+
+        if (fromPreset) {
+            setOpen(false);
+            setView("main");
+        }
     }
 
     useEffect(() => {
@@ -99,25 +137,38 @@ export default function SettingsUI() {
     }, [open]);
 
     useEffect(() => {
+        if (!open) return;
+        if (sliderRef.current) {
+            updateSliderStyle(sliderRef.current);
+        }
+    }, [open]);
+
+    useEffect(() => {
         if (sliderRef.current) updateSliderStyle(sliderRef.current);
-    }, [customSpeed]);
+    }, [customSpeed, presetSpeed]);
 
     function setQuality(i: number) {
         const { hls } = getPlayer();
         hls.currentLevel = i;
         setCurrentQuality(i);
+        setOpen(false);
+        setView("main");
     }
 
     function setAudio(i: number) {
         const { hls } = getPlayer();
         hls.audioTrack = i;
         setCurrentAudio(i);
+        setOpen(false);
+        setView("main");
     }
 
     function setSub(i: number) {
         const { hls } = getPlayer();
         hls.subtitleTrack = i;
         setCurrentSub(i);
+        setOpen(false);
+        setView("main");
     }
 
     const getWidthClass = () => {
@@ -136,12 +187,22 @@ export default function SettingsUI() {
 
     return (
         <>
-            <button className={`${styles.button} ${inter.className}`} onClick={() => setOpen(!open)}>
-                ⚙️
+            <button
+                ref={buttonRef}
+                className={`${styles.button} ${inter.className}`}
+                data-open={open ? "true" : "false"} // NEVER null
+                onClick={() => setOpen(prev => !prev)}
+            >
+                <Settings className={styles.settingsIcon}  size={40}/>
             </button>
 
+
+
             {open && (
-                <div className={`${styles.settings} ${getWidthClass()} ${inter.className}`}>
+                <div ref={panelRef} className={`${styles.settings} ${getWidthClass()} ${inter.className}`}  
+                onMouseMove={(e) => e.stopPropagation()}
+                onMouseDown={() => (window as any).__SHOW_UI__(true)}
+>
                     {view !== "main" && (
                         <div
                             className={styles.back}
@@ -150,7 +211,7 @@ export default function SettingsUI() {
                                 setView("main");
                             }}
                         >
-                            {VIEW_TITLE[view]}
+                            <ChevronLeft />{VIEW_TITLE[view]}
                         </div>
                     )}
 
@@ -163,28 +224,28 @@ export default function SettingsUI() {
                         {view === "main" && (
                             <>
                                 <div className={styles.row} onClick={() => { setSlideDirection("forward"); setView("quality"); }}>
-                                    <span>Quality</span>
+                                    <span><SlidersHorizontal />Quality</span>
                                     <span className={styles.value}>
                                         {currentQuality === -1 ? "Auto" : qualities[currentQuality]?.height + "p"}
                                     </span>
                                 </div>
 
                                 <div className={styles.row} onClick={() => { setSlideDirection("forward"); setView("audio"); }}>
-                                    <span>Audio</span>
+                                    <span><AudioLines />Audio</span>
                                     <span className={styles.value}>
                                         {audios[currentAudio]?.name || audios[currentAudio]?.lang || "Track"}
                                     </span>
                                 </div>
 
                                 <div className={styles.row} onClick={() => { setSlideDirection("forward"); setView("subs"); }}>
-                                    <span>Subtitles</span>
+                                    <span><Captions />Subtitles</span>
                                     <span className={styles.value}>
                                         {currentSub === -1 ? "Off" : subs[currentSub]?.name || subs[currentSub]?.lang}
                                     </span>
                                 </div>
 
                                 <div className={styles.row} onClick={() => { setSlideDirection("forward"); setView("speed"); }}>
-                                    <span>Playback speed</span>
+                                    <span><Gauge />Playback speed</span>
                                     <span className={styles.value}>
                                         {(presetSpeed ?? customSpeed).toFixed(2)}x
                                     </span>
@@ -196,11 +257,11 @@ export default function SettingsUI() {
                         {view === "quality" && (
                             <div className={styles.itemsContainer}>
                                 <div className={styles.item} onClick={() => setQuality(-1)}>
-                                    Auto {currentQuality === -1 && <span className={styles.check}>✓</span>}
+                                    Auto {currentQuality === -1 && <span className={styles.check}><Check /></span>}
                                 </div>
                                 {qualities.map((q, i) => (
                                     <div key={i} className={styles.item} onClick={() => setQuality(i)}>
-                                        {q.height}p {currentQuality === i && <span className={styles.check}>✓</span>}
+                                        {q.height}p {currentQuality === i && <span className={styles.check}><Check /></span>}
                                     </div>
                                 ))}
                             </div>
@@ -212,7 +273,7 @@ export default function SettingsUI() {
                                 {audios.map((a, i) => (
                                     <div key={i} className={styles.item} onClick={() => setAudio(i)}>
                                         {a.name || a.lang || `Track ${i + 1}`}
-                                        {currentAudio === i && <span className={styles.check}>✓</span>}
+                                        {currentAudio === i && <span className={styles.check}><Check /></span>}
                                     </div>
                                 ))}
                             </div>
@@ -222,12 +283,12 @@ export default function SettingsUI() {
                         {view === "subs" && (
                             <div className={styles.itemsContainer}>
                                 <div className={styles.item} onClick={() => setSub(-1)}>
-                                    Off {currentSub === -1 && <span className={styles.check}>✓</span>}
+                                    Off {currentSub === -1 && <span className={styles.check}><Check /></span>}
                                 </div>
                                 {subs.map((s, i) => (
                                     <div key={i} className={styles.item} onClick={() => setSub(i)}>
                                         {s.name || s.lang}
-                                        {currentSub === i && <span className={styles.check}>✓</span>}
+                                        {currentSub === i && <span className={styles.check}><Check /></span>}
                                     </div>
                                 ))}
                             </div>

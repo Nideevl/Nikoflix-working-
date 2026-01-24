@@ -1,62 +1,183 @@
+"use client";
+
 import ProgressBar from "./ProgressBar";
 import SettingsUI from "./SettingsUI";
+import { MoveLeft, Maximize, Minimize, Volume2, Play, Pause } from "lucide-react";
+import styles from "./settingsUI.module.css";
+import { useEffect, useState } from "react";
+import Image from "next/image";
+import SkipForward from "../../../public/icons/skipForward.ico";
+import SkipBackward from "../../../public/icons/skipBack.ico";
+import NotLiked from "../../../public/icons/notLiked.ico";
+import CommentsOff from "../../../public/icons/commentsOff.ico";
 
 export default function PlayerUI() {
+  const [uiVisible, setUiVisible] = useState(true);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [isReady, setIsReady] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+
+  useEffect(() => {
+    (window as any).__SHOW_UI__ = setUiVisible;
+  }, []);
+
+  // 🎬 Sync React state with video state
+  useEffect(() => {
+    const video = document.getElementById("video") as HTMLVideoElement | null;
+    if (!video) return;
+
+    const onPlay = () => setIsPlaying(true);
+    const onPause = () => setIsPlaying(false);
+    const onReady = () => setIsReady(true);
+
+    video.addEventListener("play", onPlay);
+    video.addEventListener("pause", onPause);
+    video.addEventListener("loadeddata", onReady);
+    video.addEventListener("canplay", onReady);
+
+    return () => {
+      video.removeEventListener("play", onPlay);
+      video.removeEventListener("pause", onPause);
+      video.removeEventListener("loadeddata", onReady);
+      video.removeEventListener("canplay", onReady);
+    };
+
+  }, []);
+
+  useEffect(() => {
+    function onFullscreenChange() {
+      setIsFullscreen(!!document.fullscreenElement);
+    }
+
+    document.addEventListener("fullscreenchange", onFullscreenChange);
+
+    return () => {
+      document.removeEventListener("fullscreenchange", onFullscreenChange);
+    };
+  }, []);
+
+
+  function togglePlay() {
+    const video = document.getElementById("video") as HTMLVideoElement;
+    if (!video || !isReady) return;
+
+    if (video.paused) video.play();
+    else video.pause();
+  }
+
   return (
-    <>
-      <div className="player" id="player">
-        <video id="video" />
+    <div className={styles.playerLayout} id="playerLayout">
+    <div className={styles.player} id="player">
+      <video id="video" />
 
-        <div className="center-play" id="centerPlay">▶</div>
+      {/* 🔥 LOADING SCREEN */}
+      {!isReady && (
+        <div className={styles.loadingScreen}>
+          <div className={styles.loader}></div>
+        </div>
+      )}
 
-        <div className="overlay" id="overlay">
-          <div className="top-controls">
-            <div className="back-btn" onClick={() => history.back()}>←</div>
-            <div className="title-info" id="movieTitle">Loading…</div>
+      {/* OVERLAY */}
+      <div
+        className={`${styles.overlay} ${uiVisible ? styles.overlayVisible : styles.overlayHidden
+          }`}
+        style={{ pointerEvents: isReady ? "auto" : "none" }} // disable clicks when loading
+        id="overlay"
+      >
+        {/* TOP BAR */}
+        <div className={styles.topControls} data-player-ui>
+          <div className={styles.backBtn} onClick={() => history.back()}>
+            <MoveLeft />
+          </div>
+          <div className={styles.titleInfo} id="movieTitle">
+            Title
+          </div>
+        </div>
+
+        {/* CENTER CONTROLS */}
+        <div className={styles.centerControls}>
+          <div className={styles.centerPlay} id="centerPlay">
+            ▶
+          </div>
+        </div>
+
+        {/* BOTTOM CONTROLS */}
+        <div className={styles.bottomControls} data-player-ui>
+          <div className={styles.upperHalf}>
+            <ProgressBar />
           </div>
 
-          <ProgressBar />
+          <div className={styles.bottomHalf}>
+            {/* LEFT */}
+            <div className={styles.bottomStartButtons}>
+              <button className={styles.btn} id="play" onClick={togglePlay} disabled={!isReady}>
+                {isPlaying ? <Pause fill="white" /> : <Play fill="white" />}
+              </button>
 
-          <div className="controls">
-            <button className="btn" id="play">▶</button>
-            <button className="btn" id="skipBack">⟪</button>
-            <button className="btn" id="skipForward">⟫</button>
+              <Image className={styles.centerBtn} src={SkipBackward} id="skipBack" alt="back" width={24} height={24} />
+              <Image className={styles.centerBtn} src={SkipForward} id="skipForward" alt="forward" width={24} height={24} />
 
-            <div className="volume-container">
-              <button className="btn" id="volumeBtn">🔊</button>
-              <input
-                type="range"
-                className="volume-slider"
-                id="volumeSlider"
-                min="0"
-                max="1"
-                step="0.05"
-                defaultValue="1"
-              />
+              <div className={styles.volumeContainer}>
+                <button className={styles.btn} id="volumeBtn">
+                  <span id="volumeIcon"><Volume2 fill="white" size={24} /></span>
+                </button>
+                <input
+                  type="range"
+                  className={styles.volumeSlider}
+                  id="volumeSlider"
+                  min="0"
+                  max="1"
+                  step="0.05"
+                  defaultValue="1"
+                />
+              </div>
+
+              <div className={styles.bottomMiddleButtons}>
+                <button className={styles.btn} id="likeBtn">
+                  <span id="likeIcon"><Image className={styles.centerBtn} src={NotLiked} alt="like" width={23} height={23} /></span>
+                  <span id="likeCount">0</span>
+                </button>
+
+                <button className={styles.btn} id="commentBtn" data-player-ui>
+                  <span id="commentIcon" data-player-ui><Image className={styles.centerBtn} src={CommentsOff} alt="comments" width={23} height={23} /></span>
+                  <span id="commentCount">0</span>
+                </button>
+              </div>
             </div>
 
-            <button className="btn" id="likeBtn">
-              👍 <span id="likeCount"></span>
-            </button>
+            {/* RIGHT */}
+            <div className={styles.bottomEndButtons}>
+              <div>
+                <SettingsUI />
+              </div>
 
-            <button className="btn" id="commentBtn">
-              💬 <span id="commentCount"></span>
-            </button>
+              <button
+                className={styles.btn}
+                id="fs"
+                onClick={() => {
+                  const player = document.getElementById("player") as HTMLDivElement;
+                  if (!player) return;
 
-            <div className="spacer"></div>
+                  if (document.fullscreenElement) {
+                    document.exitFullscreen();
+                  } else {
+                    player.requestFullscreen();
+                  }
+                }}
+              >
+                {isFullscreen ? <Minimize /> : <Maximize />}
+              </button>
 
-            {/* ✅ SETTINGS UI REPLACES quality/audio/subs buttons */}
-            <SettingsUI />
-
-            <button className="btn" id="fs">⛶</button>
+            </div>
           </div>
         </div>
-
-        <div id="commentsPanel">
-          <button id="closeComments">Close</button>
-          <div id="commentsList"></div>
-        </div>
       </div>
-    </>
+
+    </div>
+      <div className={styles.commentsPanel} id="commentsPanel">
+        <button id="closeComments">Close</button>
+        <div id="commentsList"></div>
+      </div>
+    </div>
   );
 }
