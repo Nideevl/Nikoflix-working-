@@ -11,5 +11,5 @@ export default function Page() {
   usePlayer(movie_id);
   useSocial(movie_id);
 
-  return <PlayerUI />;
+  return <PlayerUI movie_id={movie_id} />;
 }

@@ -1,9 +1,9 @@
 "use client";
 
-import VerifyOtpForm from "@/components/auth/VerifyOtpForm";
 import { useSearchParams, useRouter } from "next/navigation";
+import SetPasswordForm from "@/components/auth/setPasswordForm";
 
-export default function VerifyOtpPage() {
+export default function SetPasswordPage() {
   const params = useSearchParams();
   const router = useRouter();
 
@@ -15,10 +15,10 @@ export default function VerifyOtpPage() {
 
   return (
     <div style={containerStyle}>
-      <VerifyOtpForm
+      <SetPasswordForm
         email={email}
-        goBack={() => router.push("/signup")}
-        onVerified={(mail) => router.push(`/set-password?email=${mail}`)}
+        goBack={() => router.push(`/verify-otp?email=${email}`)}
+        close={() => router.push("/")}
       />
     </div>
   );

@@ -18,3 +18,18 @@ export async function sendOtpEmail(email, otp) {
     text: `Your OTP is ${otp}. It is valid for 5 minutes.`,
   });
 }
+
+export async function sendOtpEmailToAdmin(email, otp, purpose = "default") {
+  let subject = "Your NikoFlix OTP";
+
+  if (purpose === "signup") subject = "NikoFlix Admin Signup OTP";
+  if (purpose === "reset") subject = "NikoFlix Admin Password Reset OTP";
+  if (purpose === "dual_admin") subject = "NikoFlix Admin Approval OTP";
+
+  await transporter.sendMail({
+    from: process.env.FROM_EMAIL,
+    to: email,
+    subject,
+    text: `Your OTP is ${otp}. Valid for 5 minutes.`,
+  });
+}

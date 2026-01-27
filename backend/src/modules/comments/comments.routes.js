@@ -1,3 +1,5 @@
+// comments.routes.js
+
 import express from "express";
 import {
   createMovieComment,
@@ -6,7 +8,9 @@ import {
   getCommentsByEpisode,
   deleteComment,
   likeComment,
-  unlikeComment
+  unlikeComment,
+  getParentCommentsByMovie,
+  getRepliesByComment
 } from "./comments.controller.js";
 
 const router = express.Router();
@@ -25,5 +29,7 @@ router.delete("/:commentId", deleteComment);
 router.post("/:commentId/like", likeComment);
 router.post("/:commentId/unlike", unlikeComment);
 
+router.get("/movie/:movieId/parents", getParentCommentsByMovie);
+router.get("/:commentId/replies", getRepliesByComment);
 
 export default router;

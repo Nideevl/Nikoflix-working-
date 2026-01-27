@@ -1,0 +1,408 @@
+.panel {
+    position: absolute;
+    top: 0;
+    right: 0;
+    height: 100%;
+    width: 0;
+    background: rgba(15, 15, 15, 0.6);
+    backdrop-filter: blur(20px);
+    color: white;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    border-left: 1px solid rgba(255, 255, 255, 0.1);
+    z-index: 20;
+    font-family: 'Inter';
+}
+
+.open {
+    width: 30vw;
+}
+
+.header {
+    padding: 14px 25px;
+    font-size: 18px;
+    font-weight: 600;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.header button {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 18px;
+    cursor: pointer;
+}
+
+.list {
+    flex: 1;
+    padding: 12px 12px 12px 25px;
+    overflow-y: auto;
+}
+
+.comment {
+    position: relative;
+    display: flex;
+    gap: 1.75vh;
+    margin-bottom: 2vh;
+}
+
+.avatar {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #ff6a00, #ff00aa);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.avatarSmall {
+    width: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    background: linear-gradient(135deg, #ff6a00, #ff00aa);
+    height: 30px;
+    font-size: 12px;
+}
+
+.info {
+    max-width: 100%;
+    font-size: 14px;
+    opacity: 0.9;
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 6px;
+    line-height: 1.4;
+}
+
+.info strong {
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.text {
+    font-size: 14px;
+    opacity: 0.85;
+    margin-left: 4px;
+}
+
+.actions {
+    display: flex;
+    gap: 1vw;
+    font-size: 12px;
+    margin-top: 1vh;
+    opacity: 0.7;
+}
+
+.actions button,
+.text button,
+.commentLike {
+    background: none;
+    border: none;
+    color: #aaa;
+    cursor: pointer;
+    padding: 0;
+    font-size: 12px;
+}
+
+.commentLike {
+    position: absolute;
+    right: 1vw;
+    top: 0;
+}
+.blockInfo{
+
+}
+
+.actions button:hover {
+    color: white;
+}
+
+.replies {
+    margin-top: 6px;
+    margin-left: 3vw;
+}
+
+.inputBox {
+    display: flex;
+    padding: 10px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    gap: 8px;
+}
+
+.inputBox input {
+    flex: 1;
+    background: rgba(255, 255, 255, 0.08);
+    border: none;
+    outline: none;
+    padding: 10px 12px;
+    border-radius: 20px;
+    color: white;
+    font-size: 14px;
+}
+
+.inputBox button {
+    display: flex;
+    align-items: center;
+    background: #ff0055;
+    padding:10px;
+    border: none;
+    color: white;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.nestedReplies {
+    margin-top: 6px;
+    border-left: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.viewReplies {
+    color: #aaa;
+    font-size: 12px;
+    margin-left: 8px;
+    cursor: pointer;
+    background: none;
+    border: none;
+}
+
+.viewReplies:hover {
+    color: white;
+}
+
+.loading {
+    font-size: 12px;
+    color: gray;
+    margin-top: 4px;
+}
+
+/* ========================= */
+/* Custom Scrollbar (Modern Dark UI) */
+/* ========================= */
+
+.panel {
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,0.2) transparent;
+}
+
+.panel::-webkit-scrollbar {
+  width: 6px;
+}
+
+.panel::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.panel::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.2);
+  border-radius: 10px;
+}
+
+.panel::-webkit-scrollbar-thumb:hover {
+  background: rgba(255,255,255,0.5);
+}
+
+/* 🔥 hide arrows */
+.panel::-webkit-scrollbar-button {
+  display: none;
+}
+
+/* optional */
+.panel::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+/* ===== COMMENT INPUT (MAIN) ===== */
+
+.commentBox {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  border-top: 1px solid rgba(255,255,255,0.08);
+  background: rgba(0,0,0,0.4);
+}
+
+.commentAvatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #ff416c, #ff4b2b);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  color: white;
+}
+
+.commentInputField {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: white;
+  font-size: 14px;
+  padding: 8px 10px;
+  border-radius: 20px;
+  background: rgba(255,255,255,0.08);
+}
+
+.commentInputField::placeholder {
+  color: rgba(255,255,255,0.5);
+}
+
+.commentSendBtn {
+  background: #e50914;
+  border: none;
+  border-radius: 50%;
+  width: 34px;
+  height: 34px;
+  color: white;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.commentSendBtn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.commentSendBtn:hover {
+  transform: scale(1.05);
+}
+
+/* ===== REPLY INPUT ===== */
+
+.replyBox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+  margin-left: 40px;
+  margin-bottom: 20px;
+}
+
+.replyAvatar {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #ff416c, #ff4b2b);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  color: white;
+}
+
+.replyInputField {
+  flex: 1;
+  background: #1a1a1a;
+  border: 1px solid #333;
+  border-radius: 20px;
+  padding: 6px 12px;
+  color: white;
+  font-size: 13px;
+  outline: none;
+}
+
+.replyInputField::placeholder {
+  color: rgba(255,255,255,0.5);
+}
+
+.replySendBtn {
+  background: #e50914;
+  border: none;
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.replyInputField::placeholder {
+  color: #777;
+}
+
+.replySendBtn:disabled {
+  opacity: 0.5;
+}
+
+.spinner {
+  width: 15px;
+  height: 15px;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-top: 2px solid #fff;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+  display: inline-block;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.loginHint {
+  padding: 12px;
+  display: flex;
+  justify-content: center;
+  border-top: 1px solid rgba(255,255,255,0.08);
+}
+
+.loginHintBox {
+  width: 100%;
+  background: linear-gradient(135deg, rgba(255,255,255,0.05), rgba(255,255,255,0));
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 50px;
+  padding: 14px 16px 14px 20px;
+  display: flex;
+  justify-content: space-between;
+  gap: 4px;
+  backdrop-filter: blur(6px);
+}
+
+.loginHintBox span {
+  font-size: 14px;
+  font-weight: 600;
+  color: #fff;
+  width:fit-content
+}
+
+.loginHintBox p {
+  font-size: 12px;
+  color: #aaa;
+  margin: 0;
+  margin-left: 10px;
+}
+
+.loginBtn {
+  align-self: flex-start;
+  background: #e50914;
+  border: none;
+  color: white;
+  font-size: 13x;
+  padding: 10px 14px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.loginBtn:hover {
+  background: #ff1c26;
+}

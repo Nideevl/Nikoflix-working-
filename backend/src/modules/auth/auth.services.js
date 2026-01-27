@@ -2,19 +2,18 @@ import { query } from '../../config/db.js';
 import { sendOtpEmail } from "../../utils/sendOtpEmail.js";
 import bcrypt from 'bcrypt';
 
-export const createOtp = async (email, phone, password_hash) => {
+export const createOtp = async (username, email, phone) => {
   const otp = Math.floor(100000 + Math.random() * 900000).toString();
 
   await query(
     `
-    INSERT INTO otp_verifications
-    (otp_id, otp_code, expires_at, verified, email, phone, password_hash)
+    INSERT INTO otp_verifications (otp_id, otp_code, expires_at, verified, email, phone, username)
     VALUES (gen_random_uuid(), $1, NOW() + INTERVAL '5 minutes', false, $2, $3, $4)
     `,
-    [otp, email, phone, password_hash]
+    [otp, email, phone, username]
   );
 
-  await sendOtpEmail(email, otp); 
+  if (email) await sendOtpEmail(email, otp);
 };
 
 export const verifyOtpCode = async (email, otp) => {
@@ -28,7 +27,7 @@ export const verifyOtpCode = async (email, otp) => {
     `,
     [otp, email]
   );
-
+   console.log(rows[0]);
   return rows[0];
 };
 
@@ -51,14 +50,6 @@ export const createUser = async (otpRow) => {
     [otpRow.otp_id]
   );
 
-  return rows[0];
-};
-
-export const getUserByEmail = async (email) => {
-  const { rows } = await query(
-    `SELECT * FROM users WHERE email = $1`,
-    [email]
-  );
   return rows[0];
 };
 
@@ -99,4 +90,15 @@ export const resetPasswordService = async (email, otp, newPassword) => {
     `UPDATE users SET password_hash = $1 WHERE email = $2`,
     [hash, email]
   );
+};
+
+export const findUserByIdentifier = async (identifier) => {
+  const { rows } = await query(
+    `
+    SELECT * FROM users
+    WHERE email = $1 OR username = $1
+    `,
+    [identifier]
+  );
+  return rows[0];
 };

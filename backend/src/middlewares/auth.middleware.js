@@ -12,7 +12,8 @@ export const identityMiddleware = (req, res, next) => {
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
       req.identity = { type: 'user', user_id: decoded.user_id };
       return next();
-    } catch {
+    } catch(err) {
+      console.log("JWT ERROR:", err.message);
       return res.status(401).json({ error: 'Invalid token' });
     }
   }

@@ -166,7 +166,29 @@ export default function usePlayer(movie_id?: string) {
       };
     }
 
-    video.addEventListener("volumechange", updateVolumeIcon);
+    function updateVolumeSliderUI() {
+      if (!volumeSlider || !video) return;
+
+      const percent = video.volume * 100;
+      volumeSlider.style.background =
+        `linear-gradient(to right, #fff ${percent}%, #777 ${percent}%)`;
+    }
+
+    if (volumeSlider) {
+      volumeSlider.value = String(video.volume);
+
+      updateVolumeSliderUI(); // initial render
+
+      volumeSlider.oninput = (e: any) => {
+        video.volume = parseFloat(e.target.value);
+        video.muted = false;
+        updateVolumeIcon();
+        updateVolumeSliderUI(); // 🔥 THIS FIXES OPERA
+      };
+    }
+
+    video.addEventListener("volumechange", updateVolumeSliderUI);
+
     updateVolumeIcon();
 
     // ================= FULLSCREEN =================
@@ -181,7 +203,15 @@ export default function usePlayer(movie_id?: string) {
 
     // ================= KEYBOARD CONTROLS =================
     function handleKeydown(e: KeyboardEvent) {
+      const target = e.target as HTMLElement;
       if (!video) return;
+            if (
+        target.tagName === "INPUT" ||
+        target.tagName === "TEXTAREA" ||
+        target.isContentEditable
+      ) {
+        return;
+      }
 
       switch (e.code) {
         case "Space":

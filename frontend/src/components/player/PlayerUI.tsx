@@ -10,12 +10,15 @@ import SkipForward from "../../../public/icons/skipForward.ico";
 import SkipBackward from "../../../public/icons/skipBack.ico";
 import NotLiked from "../../../public/icons/notLiked.ico";
 import CommentsOff from "../../../public/icons/commentsOff.ico";
+import CommentsOn from "../../../public/icons/commentsOn.ico";
+import CommentsPanel from "../comments/CommentsPanel";
 
-export default function PlayerUI() {
+export default function PlayerUI({ movie_id }: { movie_id?: string }) {
   const [uiVisible, setUiVisible] = useState(true);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isReady, setIsReady] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [commentsOpen, setCommentsOpen] = useState(false);
 
   useEffect(() => {
     (window as any).__SHOW_UI__ = setUiVisible;
@@ -66,7 +69,6 @@ export default function PlayerUI() {
   }
 
   return (
-    <div className={styles.playerLayout} id="playerLayout">
     <div className={styles.player} id="player">
       <video id="video" />
 
@@ -134,14 +136,33 @@ export default function PlayerUI() {
 
               <div className={styles.bottomMiddleButtons}>
                 <button className={styles.btn} id="likeBtn">
-                  <span id="likeIcon"><Image className={styles.centerBtn} src={NotLiked} alt="like" width={23} height={23} /></span>
+                  <span id="likeIcon">
+                    <Image className={styles.centerBtn} src={NotLiked} alt="like" width={23} height={23} /></span>
                   <span id="likeCount">0</span>
                 </button>
 
-                <button className={styles.btn} id="commentBtn" data-player-ui>
-                  <span id="commentIcon" data-player-ui><Image className={styles.centerBtn} src={CommentsOff} alt="comments" width={23} height={23} /></span>
+                <button
+                  className={styles.btn}
+                  id="commentBtn"
+                  data-player-ui
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setCommentsOpen(prev => !prev);
+                  }}
+                >
+                  <span id="commentIcon" data-player-ui>
+                    <Image
+                      className={styles.centerBtn}
+                      src={commentsOpen ? CommentsOn : CommentsOff}
+                      alt="comments"
+                      width={23}
+                      height={23}
+                    />
+                  </span>
+
                   <span id="commentCount">0</span>
                 </button>
+
               </div>
             </div>
 
@@ -173,11 +194,14 @@ export default function PlayerUI() {
         </div>
       </div>
 
-    </div>
-      <div className={styles.commentsPanel} id="commentsPanel">
-        <button id="closeComments">Close</button>
-        <div id="commentsList"></div>
-      </div>
+      {commentsOpen &&
+        <CommentsPanel
+          movieId={movie_id}
+          open={commentsOpen}
+          onClose={() => setCommentsOpen(false)}
+        />
+      }
+
     </div>
   );
 }

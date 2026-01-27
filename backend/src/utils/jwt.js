@@ -7,3 +7,11 @@ export const generateJwt = (user_id) => {
     { expiresIn: '7d' }
   );
 };
+
+export const generateAdminJwt = (admin_id) => {
+  return jwt.sign(
+    { admin_id, role: "admin" },
+    process.env.JWT_SECRET,
+    { expiresIn: "3h" }
+  );
+};

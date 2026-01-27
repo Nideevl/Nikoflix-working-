@@ -1,59 +1,61 @@
 import bcrypt from 'bcrypt';
+import { query } from '../../config/db.js'
 import {
   createOtp,
   verifyOtpCode,
-  createUser,
-  getUserByEmail,
-  migrateGuestData,
+  findUserByIdentifier,
   forgotPasswordService,
   resetPasswordService
 } from './auth.services.js';
 import { generateJwt } from '../../utils/jwt.js';
 
 export const signup = async (req, res) => {
-  const { email, phone, password } = req.body;
+  const { username, email, phone } = req.body;
+   if (!username) return res.status(400).json({ error: "Username required" });
 
-  if (!email && !phone)
-    return res.status(400).json({ error: 'Email or phone required' });
+  const { rowCount } = await query(
+    `SELECT 1 FROM users WHERE username = $1`,
+    [username]
+  );
 
-  const hashedPassword = await bcrypt.hash(password, 10);
-  await createOtp(email, phone, hashedPassword);
+  if (rowCount > 0) {
+    return res.status(400).json({ error: "Username already taken" });
+  }
+  if (!email && !phone) return res.status(400).json({ error: "Email or phone required" });
+
+  await createOtp(username, email, phone);
 
   res.json({ message: 'OTP sent' });
 };
 
 export const verifyOtp = async (req, res) => {
-  const { email, otp, guest_id } = req.body;
+  const { email, otp } = req.body;
 
   const otpRow = await verifyOtpCode(email, otp);
-  if (!otpRow)
-    return res.status(400).json({ error: 'Invalid or expired OTP' });
 
-  const user = await createUser(otpRow);
+  if (!otpRow) return res.status(400).json({ error: "Invalid OTP" });
 
-  if (guest_id) {
-    await migrateGuestData(guest_id, user.user_id);
-  }
+  await query(
+    `UPDATE otp_verifications SET verified = true WHERE otp_id = $1`,
+    [otpRow.otp_id]
+  );
 
-  const token = generateJwt(user.user_id);
-  res.json({ token });
+  res.json({ message: "OTP verified" });
 };
 
 export const login = async (req, res) => {
-  const { email, password } = req.body;
+  const { identifier, password } = req.body;
 
-  const user = await getUserByEmail(email);
-  if (!user)
-    return res.status(401).json({ error: 'Invalid credentials' });
+  const user = await findUserByIdentifier(identifier);
+  if (!user) return res.status(400).json({ error: "User not found" });
 
   const ok = await bcrypt.compare(password, user.password_hash);
-  if (!ok)
-    return res.status(401).json({ error: 'Invalid credentials' });
+  if (!ok) return res.status(400).json({ error: "Wrong password" });
 
   const token = generateJwt(user.user_id);
+
   res.json({ token });
 };
-
 
 export const logout = (req, res) => {
   res.json({ message: 'Logged out' });
@@ -93,3 +95,47 @@ export const resetPassword = async (req, res) => {
   }
 };
 
+export const checkUsername = async (req, res) => {
+  const { username } = req.query;
+
+  console.log("hi ",username);
+
+  if (!username) {
+    return res.status(400).json({ available: false });
+  }
+
+  const { rowCount } = await query(
+    `SELECT 1 FROM users WHERE username = $1`,
+    [username]
+  );
+
+  res.json({ available: rowCount === 0 });
+};
+
+export const setPassword = async (req, res) => {
+  const { email, password } = req.body;
+
+  const { rows } = await query(
+    `SELECT * FROM otp_verifications WHERE email = $1 AND verified = true`,
+    [email]
+  );
+
+  const otpRow = rows[0];
+  if (!otpRow) return res.status(400).json({ error: "OTP not verified" });
+
+  const hash = await bcrypt.hash(password, 10);
+
+  const { rows: userRows } = await query(
+    `
+    INSERT INTO users (username, email, phone_number, password_hash)
+    VALUES ($1, $2, $3, $4)
+    RETURNING *
+    `,
+    [otpRow.username, otpRow.email, otpRow.phone, hash]
+  );
+
+  // ✅ delete OTP row (important)
+  await query(`DELETE FROM otp_verifications WHERE otp_id = $1`, [otpRow.otp_id]);
+
+  res.json({ message: "Account created", user: userRows[0] });
+};

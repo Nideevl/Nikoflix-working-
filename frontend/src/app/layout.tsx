@@ -1,4 +1,4 @@
-import { AuthProvider } from "@/context/AuthContext";
+import Providers from "./providers";
 
 export default function RootLayout({
   children,
@@ -8,7 +8,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <AuthProvider>{children}</AuthProvider>
+        <Providers>{children}</Providers>
       </body>
     </html>
   );

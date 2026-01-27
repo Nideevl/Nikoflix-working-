@@ -24,9 +24,10 @@ app.use(
 
 app.use(cookieParser());
 app.use(express.json()); // Automatically parses incoming JSON request bodies
+app.use("/admin", adminRoutes);
+
 app.use(identityMiddleware); //global middleware
 
-app.use("/admin", adminRoutes);
 
 app.get('/health', (req, res) => {
   res.json({

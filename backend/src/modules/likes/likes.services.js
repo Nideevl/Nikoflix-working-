@@ -47,14 +47,12 @@ export const getMovieLikeInfo = async (movieId, userId, guestId) => {
       `SELECT 1 FROM likes WHERE movie_id = $1 AND user_id = $2`,
       [movieId, userId]
     );
-    console.log("count ",rowCount);
     liked = rowCount === 1;
   } else if (guestId) {
     const { rowCount } = await query(
       `SELECT 1 FROM likes WHERE movie_id = $1 AND guest_id = $2`,
       [movieId, guestId]
     );
-    console.log("coun ",rowCount);
     liked = rowCount === 1;
   }
 

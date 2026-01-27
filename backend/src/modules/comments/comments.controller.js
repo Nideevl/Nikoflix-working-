@@ -1,3 +1,5 @@
+// comments.controller.js
+
 import * as commentService from "./comments.services.js";
 
 const requireUser = (req, res) => {
@@ -79,7 +81,6 @@ export const getCommentsByEpisode = async (req, res) => {
   res.json(comments);
 };
 
-
 // DELETE COMMENT (OWNER ONLY)
 export const deleteComment = async (req, res) => {
   if (!requireUser(req, res)) return;
@@ -125,4 +126,40 @@ export const unlikeComment = async (req, res) => {
   await commentService.unlikeComment(commentId, userId);
   res.json({ success: true });
 };
+
+export const getParentCommentsByMovie = async (req, res) => {
+  const { movieId } = req.params;
+  const { limit = 20, offset = 0 } = req.query;
+
+  const userId =
+    req.identity.type === "user"
+      ? req.identity.user_id
+      : null;
+
+  const comments = await commentService.getParentCommentsByMovie(
+    movieId,
+    userId,
+    Number(limit),
+    Number(offset)
+  );
+
+  res.json(comments);
+};
+
+export const getRepliesByComment = async (req, res) => {
+  const { commentId } = req.params;
+
+  const userId =
+    req.identity.type === "user"
+      ? req.identity.user_id
+      : null;
+
+  const replies = await commentService.getRepliesByComment(
+    commentId,
+    userId
+  );
+
+  res.json(replies);
+};
+
 

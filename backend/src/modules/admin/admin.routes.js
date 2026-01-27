@@ -7,7 +7,11 @@ import {
   createEpisodeAdmin,
   updateEpisodeAdmin,
   deleteEpisodeAdmin,
-  updateMovieAdmin
+  updateMovieAdmin,
+  requestAdminSignup,
+  verifyAdminSignup,
+  requestAdminResetOtp,
+  resetAdminPassword
 } from "./admin.controller.js";
 import { adminMiddleware } from "../../middlewares/admin.middleware.js";
 
@@ -15,6 +19,15 @@ const router = express.Router();
 
 // AUTH
 router.post("/login", adminLogin);
+
+// SIGNUP FLOW
+router.post("/signup/request", requestAdminSignup);
+router.post("/signup/verify", verifyAdminSignup);
+
+// RESET FLOW
+router.post("/reset/request", requestAdminResetOtp);
+router.post("/reset/verify", resetAdminPassword);
+
 
 // CONTENT (ADMIN)
 router.post("/content", adminMiddleware, createContentAdmin);
