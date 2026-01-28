@@ -11,7 +11,7 @@ export const generateJwt = (user_id) => {
 export const generateAdminJwt = (admin_id) => {
   return jwt.sign(
     { admin_id, role: "admin" },
-    process.env.JWT_SECRET,
-    { expiresIn: "3h" }
+    process.env.ADMIN_JWT_SECRET,
+    { expiresIn: "2d" }
   );
 };

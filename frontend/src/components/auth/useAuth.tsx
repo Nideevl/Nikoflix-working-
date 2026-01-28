@@ -7,7 +7,7 @@ export function useAuth() {
   const [isUser, setIsUser] = useState(false);
 
   useEffect(() => {
-    const t = localStorage.getItem("jwt");
+    const t = localStorage.getItem("token");
     if (t) {
       setToken(t);
       setIsUser(true);
@@ -15,16 +15,22 @@ export function useAuth() {
   }, []);
 
   function login(token: string) {
-    localStorage.setItem("jwt", token);
+    localStorage.setItem("token", token);
     setToken(token);
     setIsUser(true);
   }
 
   function logout() {
-    localStorage.removeItem("jwt");
+    localStorage.removeItem("token");
     setToken(null);
     setIsUser(false);
   }
 
-  return { token, isUser, login, logout };
+  function adminLogout() {
+    localStorage.removeItem("admin_token");
+    setToken(null);
+    setIsUser(false);
+  }
+
+  return { token, isUser, login, logout, adminLogout };
 }
