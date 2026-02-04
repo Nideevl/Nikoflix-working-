@@ -8,6 +8,7 @@ import {
   resetPasswordService
 } from './auth.services.js';
 import { generateJwt } from '../../utils/jwt.js';
+import jwt from 'jsonwebtoken';
 
 export const signup = async (req, res) => {
   const { username, email, phone } = req.body;
@@ -32,13 +33,22 @@ export const verifyOtp = async (req, res) => {
   const { email, otp } = req.body;
 
   const otpRow = await verifyOtpCode(email, otp);
-
+  
   if (!otpRow) return res.status(400).json({ error: "Invalid OTP" });
+  console.log(otpRow);
+  
+const ret = await query(
+  `
+  UPDATE otp_verifications 
+  SET verified = true 
+  WHERE otp_id = $1
+  RETURNING *
+  `,
+  [otpRow.otp_id]
+);
 
-  await query(
-    `UPDATE otp_verifications SET verified = true WHERE otp_id = $1`,
-    [otpRow.otp_id]
-  );
+console.log("Updated row:", ret.rows[0]);
+
 
   res.json({ message: "OTP verified" });
 };
@@ -113,29 +123,63 @@ export const checkUsername = async (req, res) => {
 };
 
 export const setPassword = async (req, res) => {
-  const { email, password } = req.body;
+  try {
+    console.log("BODY:", req.body);
+    const { email, password } = req.body;
+    
+    const { rows } = await query(
+      `SELECT * FROM otp_verifications WHERE email = $1 AND verified = true`,
+      [email]
+    );
+    console.log("Row:", rows);
 
-  const { rows } = await query(
-    `SELECT * FROM otp_verifications WHERE email = $1 AND verified = true`,
-    [email]
-  );
+    const otpRow = rows[0];
+    if (!otpRow) return res.status(400).json({ error: "OTP not verified" });
 
-  const otpRow = rows[0];
-  if (!otpRow) return res.status(400).json({ error: "OTP not verified" });
+    const hash = await bcrypt.hash(password, 10);
 
-  const hash = await bcrypt.hash(password, 10);
+    const { rows: userRows } = await query(
+      `
+      INSERT INTO users (username, email, phone_number, password_hash)
+      VALUES ($1, $2, $3, $4)
+      RETURNING user_id, username, email
+      `,
+      [otpRow.username, otpRow.email, otpRow.phone, hash]
+    );
 
-  const { rows: userRows } = await query(
-    `
-    INSERT INTO users (username, email, phone_number, password_hash)
-    VALUES ($1, $2, $3, $4)
-    RETURNING *
-    `,
-    [otpRow.username, otpRow.email, otpRow.phone, hash]
-  );
+    const user = userRows[0];
 
-  // ✅ delete OTP row (important)
-  await query(`DELETE FROM otp_verifications WHERE otp_id = $1`, [otpRow.otp_id]);
+    // ✅ delete OTP row
+    await query(`DELETE FROM otp_verifications WHERE otp_id = $1`, [otpRow.otp_id]);
 
-  res.json({ message: "Account created", user: userRows[0] });
+    // ✅ CREATE JWT TOKEN
+    const token = jwt.sign(
+      { user_id: user.user_id, email: user.email },
+      process.env.JWT_SECRET,
+      { expiresIn: "7d" }
+    );
+
+    res.json({
+      message: "Account created",
+      token,       // ✅ IMPORTANT
+      user,
+    });
+  } catch (err) {
+    console.error("setPassword error:", err);
+    res.status(500).json({ error: "Internal server error" });
+  }
 };
+
+export const verifyToken = async(req, res) => {
+  const auth = req.headers.authorization;
+  if (!auth) return res.status(401).json({ valid: false });
+
+  const token = auth.split(" ")[1];
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    res.json({ valid: true, user: decoded });
+  } catch (err) {
+    res.status(401).json({ valid: false });
+  }
+}

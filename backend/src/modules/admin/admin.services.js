@@ -139,6 +139,7 @@ export async function bulkCreateMoviesService(movies) {
 
   try {
     await client.query("BEGIN");
+    console.log(movies);
 
     for (const movie of movies) {
       const {
@@ -150,7 +151,8 @@ export async function bulkCreateMoviesService(movies) {
         imdb_rating,
         release_date,
         genre_ids = [],
-        parent_id = null, // ✅ added
+        duration,
+        parent_id = null, 
       } = movie;
 
       // 1️⃣ Insert into content
@@ -185,10 +187,10 @@ export async function bulkCreateMoviesService(movies) {
       // 2️⃣ Insert into movies table
       await client.query(
         `
-        INSERT INTO movies (content_id, source_url)
-        VALUES ($1,$2)
+        INSERT INTO movies (content_id, duration, source_url)
+        VALUES ($1,$2,$3)
         `,
-        [contentId, source_url?.trim() || null]
+        [contentId, duration, source_url?.trim() || null]
       );
 
       // 3️⃣ Insert genres into content_genres

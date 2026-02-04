@@ -27,7 +27,6 @@ export const verifyOtpCode = async (email, otp) => {
     `,
     [otp, email]
   );
-   console.log(rows[0]);
   return rows[0];
 };
 

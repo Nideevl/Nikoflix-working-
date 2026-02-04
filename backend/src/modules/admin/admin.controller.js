@@ -160,7 +160,7 @@ export const getAllGenres = async (req, res) => {
 export const getContentGenres = async (req, res) => {
   const { contentId } = req.params;
 
-  const { rows } = await pool.query(
+  const { rows } = await query(
     `
     SELECT g.genre_id, g.name
     FROM content_genres cg

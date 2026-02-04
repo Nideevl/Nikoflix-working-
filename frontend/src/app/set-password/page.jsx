@@ -18,7 +18,7 @@ export default function SetPasswordPage() {
       <SetPasswordForm
         email={email}
         goBack={() => router.push(`/verify-otp?email=${email}`)}
-        close={() => router.push("/")}
+        close={() => router.push("/browse")}
       />
     </div>
   );

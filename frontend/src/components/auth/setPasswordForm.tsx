@@ -31,7 +31,7 @@ export default function SetPasswordForm({
 
     setLoading(true);
 
-    const res = await fetch(
+    const res = await fetch(  
       `${process.env.NEXT_PUBLIC_API_BASE}/auth/set-password`,
       {
         method: "POST",
@@ -39,8 +39,9 @@ export default function SetPasswordForm({
         body: JSON.stringify({ email, password }),
       }
     );
-
+    
     const data = await res.json();
+    console.log(data);
     setLoading(false);
 
     if (!res.ok) {

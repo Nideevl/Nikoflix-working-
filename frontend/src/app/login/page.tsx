@@ -10,7 +10,7 @@ export default function LoginPage() {
     <div style={containerStyle}>
       <LoginForm
         switchMode={() => router.push("/signup")}
-        close={() => router.push("/")}
+        close={() => window.location.href = "/browse"}
       />
     </div>
   );

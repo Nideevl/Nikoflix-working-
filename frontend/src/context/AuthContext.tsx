@@ -4,6 +4,7 @@ import { createContext, useContext, useEffect, useState } from "react";
 
 type AuthContextType = {
   token: string | null;
+  loading: boolean;
   login: (token: string) => void;
   logout: () => void;
 };
@@ -11,11 +12,39 @@ type AuthContextType = {
 const AuthContext = createContext<AuthContextType | null>(null);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [token, setToken] = useState<string | null>(null); // 👈 always null initially
+  const [token, setToken] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const stored = localStorage.getItem("token");
-    setToken(stored);
+    async function checkToken() {
+      const stored = localStorage.getItem("token");
+
+      if (!stored) {
+        setToken(null);
+        setLoading(false);
+        return;
+      }
+
+      try {
+        const res = await fetch("http://localhost:5000/auth/verify-token", {
+          headers: { Authorization: `Bearer ${stored}` },
+        });
+
+        if (!res.ok) {
+          localStorage.removeItem("token");
+          setToken(null);
+        } else {
+          setToken(stored);
+        }
+      } catch {
+        localStorage.removeItem("token");
+        setToken(null);
+      }
+
+      setLoading(false);
+    }
+
+    checkToken();
   }, []);
 
   const login = (token: string) => {
@@ -29,7 +58,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ token, login, logout }}>
+    <AuthContext.Provider value={{ token, loading, login, logout }}>
       {children}
     </AuthContext.Provider>
   );

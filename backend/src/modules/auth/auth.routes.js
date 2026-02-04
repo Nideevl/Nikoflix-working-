@@ -7,7 +7,8 @@ import {
   forgotPassword,
   resetPassword,
   checkUsername,
-  setPassword
+  setPassword,
+  verifyToken
 } from './auth.controller.js';
 
 const router = express.Router();
@@ -20,5 +21,7 @@ router.post('/forgot-password', forgotPassword);
 router.post('/reset-password', resetPassword);
 router.get('/check-username', checkUsername);
 router.post("/set-password", setPassword);
+router.get("/verify-token", verifyToken);
+
 
 export default router;

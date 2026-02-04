@@ -1,0 +1,89 @@
+.carousel {
+  position: relative;
+  max-width: 100%;
+  width: 100%;
+  height: 26vh;
+  background: transparent;
+  transition : transform .54s cubic-bezier(.5,0,.1,1) 0s;
+  box-sizing: border-box;
+  margin: 3.5vw 0 0 0;
+  margin-bottom: -1vw;
+  padding: 0;
+}
+
+.zHovered {
+  z-index: 40;
+}
+
+.zNormal {
+  z-index: 10;
+}
+
+.sliderContainer {
+  width: 100%;
+  height: 100%;
+  background: transparent;
+  position: relative;
+  padding-left: 2.25rem;
+}
+
+.sliderContent {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 0.35vw;
+  padding: 0.5rem 1.5rem;
+  height: 100%;
+  width: fit-content;
+  transition: transform 1000ms cubic-bezier(0.4, 0.8, 0.6, 1);
+}
+
+.prevButton,
+.nextButton {
+  position: absolute;
+  top:1vh;
+  padding-top: 1vh;
+  width: 62px;
+  height: 21vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: hsla(0,0%,8%,.5);
+  font-size: 1.25rem;
+  font-weight: bold;
+  opacity: 0;
+  transition: all 0.3s;
+  color: white;
+  
+}
+
+.shiftUp{
+  margin-top: -15px;
+  transition: 0.1s;
+}
+
+.nextButton:hover .shiftUp,
+.prevButton:hover .shiftUp {
+  transition: all 0.1s;
+  transform: scale(1.25);
+}
+.sliderContainer:hover .prevButton,
+.sliderContainer:hover .nextButton {
+  opacity: 1;
+}
+
+.prevButton {
+  left: 0;
+}
+
+.nextButton {
+  right: 0;
+}
+
+.rowTitle {
+  color: #e5e5e5;
+  font-size: 1.4vw;
+  font-weight: 700;
+  margin: 0 0 0.6vw 0;
+  letter-spacing: -0.5px;
+  padding-left: 4%;
+}

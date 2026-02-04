@@ -2,6 +2,8 @@
 
 import { useRouter } from 'next/navigation'; // Note: 'next/navigation' not 'next/router'
 import styles from './landing.module.css';
+import Link from "next/link";
+import Image from "next/image";
 
 export default function LandingPage() {
   const router = useRouter(); // Next.js equivalent of useNavigate
@@ -10,9 +12,26 @@ export default function LandingPage() {
     <main className={styles.landing}>
       {/* Navbar */}
       <header className={styles.navbar}>
-        <div className={styles.logo}>NikoFlix</div>
+        <Link href="/browse" className="flex items-center pr-5">
+
+          <Image
+            src="/logo.svg"
+            alt="NIKOFLIX"
+            width={100}
+            height={20}
+            className="h-6 w-auto logo-img"
+            onError={(e) => {
+              e.currentTarget.style.display = "none";
+            }}
+          />
+
+          <span className="logo-text text-red-600 text-2xl font-extrabold tracking-wide">
+            NikoFlix
+          </span>
+
+        </Link>
         <nav>
-          <button 
+          <button
             className={styles.btnOutline}
             onClick={() => router.push('/login')}
           >
@@ -26,7 +45,7 @@ export default function LandingPage() {
         <div className={styles.heroContent}>
           <h1>Unlimited Movies, Shows & More</h1>
           <p>Stream anywhere. Cancel anytime.</p>
-          <button 
+          <button
             className={styles.btnPrimary}
             onClick={() => router.push('/browse')}
           >
@@ -54,7 +73,7 @@ export default function LandingPage() {
       {/* CTA Section */}
       <section className={styles.cta}>
         <h2>Ready to watch?</h2>
-        <button 
+        <button
           className={styles.btnPrimary}
           onClick={() => router.push('/browse')}
         >

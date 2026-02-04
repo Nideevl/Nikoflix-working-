@@ -2,12 +2,18 @@ import express from "express";
 import {
   getAllContent,
   getContentById,
-  getEpisodesBySeries
+  getEpisodesBySeries,
+  getContentRow,
+  getContentCollection,
+  getSimilarContent
 } from "./content.controller.js";
 
 const router = express.Router();
 
 router.get("/", getAllContent);
+router.get("/row", getContentRow);
+router.get("/collection/:contentId", getContentCollection);
+router.get("/similar/:contentId/:count", getSimilarContent);
 router.get("/:contentId", getContentById);
 router.get("/:contentId/episodes", getEpisodesBySeries);
 
