@@ -8,26 +8,86 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+
 import Liked from "@/../public/icons/liked.ico";
 import NotLiked from "@/../public/icons/notLiked.ico";
 
 export default function ExpandedActions({ item }: { item: any }) {
+  const router = useRouter();
+
   const [liked, setLiked] = useState(false);
+  const [loadingPlayback, setLoadingPlayback] = useState(false);
+  const [ingestStatus, setIngestStatus] = useState(item.ingest_status);
 
+  const movieId = item?.movie_or_episode_id;
+  const type = item?.type;
+
+  /**
+   * 🔹 Fetch like state
+   */
   useEffect(() => {
-    if (item.type !== "movie") return;
+    if (type !== "movie" || !movieId) {
+      setLiked(false);
+      return;
+    }
 
-    fetch(
-      `${process.env.NEXT_PUBLIC_API_BASE}/movie/${item.movie_or_episode_id}`
-    )
+    let cancelled = false;
+
+    fetch(`${process.env.NEXT_PUBLIC_API_BASE}/movie/${movieId}`)
       .then((res) => res.json())
-      .then((data) => setLiked(data.liked))
-      .catch(() => {});
-  }, [item]);
+      .then((data) => {
+        if (!cancelled) {
+          setLiked(Boolean(data?.liked));
+        }
+      })
+      .catch(() => { });
 
-  // 🔥 PRIMARY ACTION CONFIG
+    return () => {
+      cancelled = true;
+    };
+  }, [movieId, type]);
+
+  /**
+   * 🔥 PLAYBACK HANDLER
+   */
+  const handlePrimaryClick = async () => {
+    if (!movieId || loadingPlayback) return;
+
+    setLoadingPlayback(true);
+
+    try {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_BASE}/play/movie/${movieId}`
+      );
+
+      const data = await res.json();
+      console.log(data)
+
+      // READY → go to player
+      if (data.status === "READY") {
+        setIngestStatus("READY");
+
+        router.push(`/playback/movie/${movieId}`);
+        return;
+      }
+
+      // NOT READY → ingest triggered
+      if (data.status === "PREPARING") {
+        setIngestStatus("PREPARING");
+      }
+    } catch (err) {
+      console.error("Playback error:", err);
+    } finally {
+      setLoadingPlayback(false);
+    }
+  };
+
+  /**
+   * 🔥 PRIMARY ACTION CONFIG (LIVE STATE)
+   */
   const primaryAction = (() => {
-    switch (item.ingest_status) {
+    switch (ingestStatus) {
       case "READY":
         return {
           label: "Play",
@@ -36,6 +96,7 @@ export default function ExpandedActions({ item }: { item: any }) {
         };
 
       case "PREPARING":
+      case "INGESTING":
         return {
           label: "Preparing",
           Icon: RefreshCcwDot,
@@ -68,41 +129,44 @@ export default function ExpandedActions({ item }: { item: any }) {
       <div className="flex items-center gap-4">
         {/* PRIMARY ACTION */}
         <button
-          disabled={primaryAction.disabled}
+          onClick={handlePrimaryClick}
+          disabled={primaryAction.disabled || loadingPlayback}
           className={`
             flex items-center gap-3 px-7 py-2 rounded-md font-semibold
             transition
-            ${
-              primaryAction.disabled
-                ? "bg-neutral-500 text-black cursor-not-allowed"
-                : "bg-white text-black hover:bg-neutral-200"
+            ${primaryAction.disabled || loadingPlayback
+              ? "bg-neutral-500 text-black cursor-not-allowed"
+              : "bg-white text-black hover:bg-neutral-200"
             }
           `}
         >
           <primaryAction.Icon
             size={25}
-            className={
-              item.ingest_status === "PREPARING"
-                ? "animate-spin"
+            className={ 
+              ingestStatus === "PREPARING" || ingestStatus === "INGESTING"
+                ? "spin-reverse"
                 : ""
-            }
+            } 
           />
-          <span className="text-lg font-bold" >{primaryAction.label}</span> 
+          <span className="text-lg font-bold">
+            {primaryAction.label}
+          </span>
         </button>
 
         {/* ADD TO LIST */}
-          <button className="w-11 h-11 rounded-full flex items-center justify-center border-2 border-neutral-500 bg-gray-800 hover:border-neutral-100 transition duration-100">
-              <Plus size={26}/>
-          </button>
+        <button className="w-11 h-11 rounded-full flex items-center justify-center border-2 border-neutral-500 bg-neutral-900 hover:border-neutral-100 transition duration-100">
+          <Plus size={26} />
+        </button>
 
         {/* LIKE — MOVIES ONLY */}
-        {item.type === "movie" && (
-          <button className="w-11 h-11 rounded-full flex items-center justify-center border-2 border-neutral-500 bg-gray-800 hover:border-neutral-100 transition duration-100">
+        {type === "movie" && (
+          <button className="w-11 h-11 rounded-full flex items-center justify-center border-2 border-neutral-500 bg-neutral-900 hover:border-neutral-100 transition duration-100">
             <Image
               src={liked ? Liked : NotLiked}
               alt="like"
               width={20}
               height={22}
+              priority
             />
           </button>
         )}

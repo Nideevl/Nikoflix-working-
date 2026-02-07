@@ -26,17 +26,17 @@
 
     return (
       <header
-        className={`fixed top-0 w-full z-50 duration-1000 transition-all ${isOverlayOpen || scrolled
+        className={`fixed top-0 w-full z-50 duration-1100 transition-all ${isOverlayOpen || scrolled
             ? "bg-black"
             : "bg-gradient-to-b from-[rgba(0,0,0,0.5)] from-10% to-transparent"
           }`}
         role="navigation"
       >
 
-        <div className="flex items-center justify-between px-15 h-17">
+        <div className="flex items-center justify-between px-9 h-17">
 
           {/* LEFT SIDE */}
-          <div className="flex items-center gap-8">
+          <div className="flex items-center gap-8 pl-7">
 
             {/* LOGO (Netflix style, not text) */}
             <Link href="/browse" className="flex items-center pr-5">
@@ -46,7 +46,7 @@
                 alt="NIKOFLIX"
                 width={100}
                 height={20}
-                className="h-6 w-auto logo-img"
+                className="h-6 w-auto logo-img -ml-[3px]"
                 onError={(e) => {
                   e.currentTarget.style.display = "none";
                 }}

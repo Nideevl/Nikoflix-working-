@@ -440,7 +440,7 @@
 .bottomStartButtons {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 20px;
   padding: 10px 10px 10px 20px;
   border-radius: 50px;
   backdrop-filter: blur(20px);
@@ -512,6 +512,7 @@
 .volumeContainer{
       display: flex;
     align-items: center;
+    gap:5px;
 }
 /* track (chrome + opera) */
 .volumeSlider::-webkit-slider-runnable-track {

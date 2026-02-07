@@ -83,13 +83,14 @@ export default function Billboard({ type }: BillboardProps) {
             }}
         >
             {/* 🎬 BACKDROP IMAGE */}
-            <Image
-                src={active.backdrop || active.poster_2 || "/billboard.jpg"}
-                alt={active.title}
+            {active.poster_2 && <Image
+                src={active.poster_2}
+                alt={""}
                 fill
                 priority
                 className="object-cover"
             />
+            }
 
             {/* 🎭 NETFLIX VIGNETTES */}
             {/* LEFT DARK */}
@@ -108,8 +109,7 @@ export default function Billboard({ type }: BillboardProps) {
                 >
                     {active.title}
                 </h1>
-
-                <p className="text-gray-100 text-lg line-clamp-3">
+                <p className="text-gray-100 text-lg line-clamp-3 [text-shadow:2px_2px_4px_rgba(0,0,0,0.45)]">
                     {active.description}
                 </p>
 
@@ -143,7 +143,7 @@ export default function Billboard({ type }: BillboardProps) {
                         <button
                             key={item.content_id}
                             onClick={() => setActiveIndex(index)}
-                            className={`relative w-34 h-18 rounded overflow-hidden border-2 
+                            className={`relative w-34 h-18 rounded overflow-hidden border-1 
               transition-all duration-300
               ${index === activeIndex
                                     ? "border-white scale-[1.02]"

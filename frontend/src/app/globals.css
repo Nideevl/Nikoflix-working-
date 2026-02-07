@@ -1,12 +1,13 @@
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap");
 
 @import "tailwindcss";
+
 .logo-text {
   display: none;
 }
 
 /* If logo image is hidden → show text */
-.logo-img[style*="display: none"] + .logo-text {
+.logo-img[style*="display: none"]+.logo-text {
   display: inline-block;
 }
 
@@ -14,7 +15,8 @@
 .nav-stroke {
   -webkit-text-stroke: 0.15px #e5e5e5;
   text-stroke: 0.15px #e5e5e5;
-  letter-spacing: 0.3px; /* Netflix-style subtle spacing */
+  letter-spacing: 0.3px;
+  /* Netflix-style subtle spacing */
 }
 
 /* Hover stronger stroke + glow */
@@ -25,59 +27,108 @@
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
 }
+
 .scrollbar-hide {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
 
 @keyframes card-expand {
-  from { transform: scale(1); opacity: 0.9; }
-  to   { transform: scale(1.18); opacity: 1; }
+  from {
+    transform: scale(1);
+    opacity: 0.9;
+  }
+
+  to {
+    transform: scale(1.18);
+    opacity: 1;
+  }
 }
 
 @keyframes card-shrink {
-  from { transform: scale(1.18); }
-  to   { transform: scale(1); opacity: 0.85; }
+  from {
+    transform: scale(1.18);
+  }
+
+  to {
+    transform: scale(1);
+    opacity: 0.85;
+  }
 }
 
-html,body {
+html,
+body {
   background: #141414;
-  margin:0;
+  margin: 0;
   font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  overflow-x: hidden;
 }
 
 html {
-      overflow-y: scroll;
+  overflow-y: scroll;
 }
 
-.bottom-fadder{
-    height: 35%;
-    width: 100%;
-    z-index: 10;
-    position:absolute;
-    bottom:0;
-    background-image: linear-gradient(180deg, hsla(0, 0%, 8%, 0) 0, hsla(0, 0%, 8%, .15) 15%, hsla(0, 0%, 8%, .35) 29%, hsla(0, 0%, 8%, .58) 44%, #141414 68%, #141414);
+.bottom-fadder {
+  height: 35%;
+  width: 100%;
+  z-index: 10;
+  position: absolute;
+  bottom: 0;
+  background-image: linear-gradient(180deg, hsla(0, 0%, 8%, 0) 0, hsla(0, 0%, 8%, .15) 15%, hsla(0, 0%, 8%, .35) 29%, hsla(0, 0%, 8%, .58) 44%, #141414 68%, #141414);
 }
 
-.trailer-vignette ,.vignette-layer{
-    background: linear-gradient(77deg, rgba(0, 0, 0, .6), transparent 85%);
-    bottom: 0;
-    left: 0;
-    opacity: 1;
-    position: absolute;
-    right: 26.09%;
-    top: 0;
-    transition: opacity .5s;
+.trailer-vignette,
+.vignette-layer {
+  background: linear-gradient(77deg, rgba(0, 0, 0, .6), transparent 85%);
+  bottom: 0;
+  left: 0;
+  opacity: 1;
+  position: absolute;
+  right: 26.09%;
+  top: 0;
+  transition: opacity .5s;
 }
 
-.separator-shade{
-      background: linear-gradient(0deg, #101010, transparent 50%);
-      height: 100%;
-    position: absolute;
-    width: 100%;
-    transform: scaleX(1.005) !important;
-    bottom: 5vh
-} 
-.big{
+.separator-shade {
+  height: 60%;
+  position: absolute;
+  width: 100%;
+  bottom: 3vh;
+  background: linear-gradient(to bottom,
+      rgba(16, 16, 16, 0) 0%,
+      rgba(16, 16, 16, 0.6)50%,
+      #181818 100%);
+}
+
+.big {
   transform: scaleX(1.005)
 }
+
+.section-divider {
+    border-bottom: 2px solid #404040;
+    box-shadow: none;
+    background-image: linear-gradient(0deg, #181818 0, hsla(0, 0%, 9%, .7) 20%, hsla(0, 0%, 9%, .4) 30%, transparent 50%);
+    display: flex;
+    height: 10vh;
+    justify-content: center;
+    margin: auto;
+    position: relative;
+    width: 100%;
+    margin-top: -25vh;
+}
+
+@keyframes spin-reverse {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(-360deg);
+  }
+}
+
+.spin-reverse {
+  animation: spin-reverse 2s linear infinite;
+  transform-origin: center;
+  transform-box: fill-box;
+}
+

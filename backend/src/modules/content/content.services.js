@@ -145,7 +145,7 @@ export const getContentCollection = async (contentId) => {
   return rows;
 };
 
-export const getSimilarContent = async (contentId, limit) => {
+export const getSimilarContent = async (contentId) => {
   const { rows } = await query(
     `
     WITH target_genres AS (
@@ -214,9 +214,8 @@ export const getSimilarContent = async (contentId, limit) => {
       mc.common_genres
 
     ORDER BY mc.common_genres DESC, c.imdb_rating DESC NULLS LAST
-    LIMIT $2
     `,
-    [contentId, limit]
+    [contentId]
   );
 
   return rows;

@@ -6,6 +6,7 @@ import ContentCarousel from "@/components/browse/ContentCarousel/ContentCarousel
 import ExpandedCardPortal from "@/components/browse/ExpandedCardPortal/ExpandedCardPortal";
 import { CardItem } from "@/components/browse/Card/types";
 import { useRouter, useSearchParams } from "next/navigation";
+import Footer from "@/components/Footer";
 
 type Row = {
   title: string;
@@ -22,7 +23,32 @@ export default function BrowsePage() {
   const [originRect, setOriginRect] = useState<DOMRect | null>(null);
   const [scrollY, setScrollY] = useState(0);
 
-  /* ---------------- FETCH ---------------- */
+  /* ---------------- URL → OPEN MODAL DIRECTLY ---------------- */
+useEffect(() => {
+  async function fetchContentDetails() {
+    if (!openId) return;
+
+    // 🧠 PREVENT LOOP
+    if (expandedItem?.content_id === openId) return;
+
+    try {
+      const base = process.env.NEXT_PUBLIC_API_BASE;
+      const res = await fetch(`${base}/content/${openId}`);
+      if (!res.ok) return;
+
+      const contentData: CardItem = await res.json();
+
+      handleOpen(contentData, null);
+    } catch (err) {
+      console.error("Error fetching content details:", err);
+    }
+  }
+
+  fetchContentDetails();
+}, [openId]);
+
+
+  /* ---------------- FETCH ROWS ---------------- */
   useEffect(() => {
     async function fetchRows() {
       const base = process.env.NEXT_PUBLIC_API_BASE;
@@ -44,14 +70,22 @@ export default function BrowsePage() {
   }, []);
 
   /* ---------------- OPEN ---------------- */
-  const handleOpen = (item: CardItem, rect: DOMRect) => {
-    const y = window.scrollY;
-    setScrollY(y);
+  const handleOpen = (item: CardItem, rect: DOMRect | null) => {
+    // 🔥 only store scroll when animation is needed
+    if (rect) {
+      const y = window.scrollY;
+      setScrollY(y);
+    }
 
     setExpandedItem(item);
     setOriginRect(rect);
 
-    router.push(`?open=${item.content_id}`, { scroll: false });
+    router.replace(`?open=${item.content_id}`, { scroll: false });
+
+    // 🔥 if opened from URL → jump to top
+    if (!rect) {
+      window.scrollTo({ top: 0 });
+    }
   };
 
   /* ---------------- CLOSE ---------------- */
@@ -59,12 +93,14 @@ export default function BrowsePage() {
     setExpandedItem(null);
     setOriginRect(null);
 
-    router.push("?", { scroll: false });
+    router.replace("?", { scroll: false });
 
-    // restore scroll AFTER main becomes static again
-    requestAnimationFrame(() => {
-      window.scrollTo(0, scrollY);
-    });
+    // restore scroll only when animation existed
+    if (scrollY) {
+      requestAnimationFrame(() => {
+        window.scrollTo(0, scrollY);
+      });
+    }
   };
 
   const isOverlayOpen = !!expandedItem;
@@ -79,13 +115,12 @@ export default function BrowsePage() {
         `}
         style={
           isOverlayOpen
-            ? { top: `-${scrollY}px` } // critical Netflix trick
+            ? { top: `-${scrollY}px` }
             : undefined
         }
       >
         <Billboard />
 
-        <div className="relative -mt-40 space-y-14 overflow-hidden">
           {rows.map((row, index) => (
             <ContentCarousel
               key={`${row.title}-${index}`}
@@ -95,11 +130,11 @@ export default function BrowsePage() {
               onOpen={handleOpen}
             />
           ))}
-        </div>
+        <Footer/>
       </main>
 
-      {/* 🧬 EXPANDED CARD (FREE SCROLLS) */}
-      <ExpandedCardPortal 
+      {/* 🧬 EXPANDED CARD */}
+      <ExpandedCardPortal
         item={expandedItem}
         originRect={originRect}
         onClose={handleClose}

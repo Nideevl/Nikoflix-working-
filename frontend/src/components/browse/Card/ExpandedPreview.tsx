@@ -6,7 +6,6 @@ import {
     ChevronDown,
     AlarmClock,
     CalendarFold,
-    X,
 } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
@@ -39,15 +38,15 @@ export default function ExpandedPreview({
         cardType === "First"
             ? "left top"
             : cardType === "Last"
-                ? "right top"
-                : "center top";
+            ? "right top"
+            : "center top";
 
     const leftOffset =
         cardType === "First"
-            ? "0px"
+            ? "0vw"
             : cardType === "Last"
-                ? "calc(100% - 340px)"
-                : "-55px";
+            ? "calc(100% - 22vw)"
+            : "-3.5vw";
 
     const year = item.release_date
         ? new Date(item.release_date).getFullYear()
@@ -83,18 +82,21 @@ export default function ExpandedPreview({
                     data-type={item.type}
                     data-id={item.content_id}
                     className={`
-            absolute top-[-80px] z-[100]
-            rounded-xl overflow-hidden
-            transition-all duration-300 ease-out
-            ${shouldShow
-                            ? "opacity-100 scale-110"
-                            : "opacity-0 scale-95 pointer-events-none"}
-          `}
+                        absolute z-[100]
+                        rounded-xl overflow-hidden
+                        transition-all duration-300 ease-out
+                        ${
+                            shouldShow
+                                ? "opacity-100 scale-110"
+                                : "opacity-0 scale-95 pointer-events-none"
+                        }
+                    `}
                     style={{
-                        width: "340px",
+                        width: "22vw",
+                        top: "-10vh",
                         left: leftOffset,
                         transformOrigin: origin,
-                        boxShadow: "0 20px 40px rgba(0,0,0,0.6)",
+                        boxShadow: "0 2vh 4vh rgba(0,0,0,1)",
                         background: "#141414",
                     }}
                     onMouseEnter={onEnter}
@@ -102,7 +104,7 @@ export default function ExpandedPreview({
                     onClick={onClick}
                 >
                     {/* IMAGE */}
-                    <div className="relative h-[200px] bg-black">
+                    <div className="relative bg-black" style={{ height: "26vh" }}>
                         {poster && !imgError ? (
                             <Image
                                 src={poster}
@@ -126,14 +128,11 @@ export default function ExpandedPreview({
                     />
                 </div>
             )}
-
-            {/* ================= OPEN MODE ================= */}
-
         </>
     );
 }
 
-/* ---------- INFO SECTION (UNCHANGED UI) ---------- */
+/* ---------- INFO SECTION ---------- */
 function InfoSection({
     item,
     year,
@@ -146,46 +145,50 @@ function InfoSection({
     genres: string[];
 }) {
     return (
-        <div className="bg-[#141414] px-4 pt-3 pb-4">
-            <div className="flex items-center gap-3">
-                <button className="w-10 h-10 bg-white text-black rounded-full flex items-center justify-center hover:bg-white/90 transition">
-                    <Play size={22} className="fill-black" />
+        <div className="bg-[#141414]" style={{ padding: "2vh 1.2vw" }}>
+            <div className="flex items-center gap-[1vw]">
+                <button className="w-[2.8vw] h-[2.8vw] bg-white text-black rounded-full flex items-center justify-center hover:bg-white/90 transition">
+                    <Play size={20} className="fill-black" />
                 </button>
 
-                <button className="w-10 h-10 rounded-full flex items-center justify-center border-2 border-neutral-500 hover:border-neutral-100">
+                <button className="w-[2.8vw] h-[2.8vw] rounded-full flex items-center justify-center border-2 border-neutral-500 hover:border-neutral-100">
                     <Plus />
                 </button>
 
-                <button className="w-10 h-10 rounded-full border-2 border-neutral-500 hover:border-neutral-100 flex items-center justify-center ml-auto">
+                <button className="w-[2.8vw] h-[2.8vw] rounded-full border-2 border-neutral-500 hover:border-neutral-100 flex items-center justify-center ml-auto">
                     <ChevronDown />
                 </button>
             </div>
 
-            <div className="flex justify-between items-top mb-2 mt-2">
-                <h3 className="text-white text-lg font-semibold">{item.title}</h3>
-                <span className="text-sm text-neutral-400 flex items-center gap-1">
-                    <CalendarFold size={15} strokeWidth={2.5} />
+            <div className="flex justify-between items-top mb-[1vh] mt-[1vh]">
+                <h3 className="text-white text-[1.1vw] font-semibold">
+                    {item.title}
+                </h3>
+
+                <span className="text-[0.8vw] text-neutral-400 flex items-center gap-[0.3vw]">
+                    <CalendarFold size={14} strokeWidth={2.5} />
                     {year}
                 </span>
             </div>
 
-            <div className="text-sm text-neutral-300 mt-1 flex justify-between">
-                <div className="text-sm">
+            <div className="text-[0.8vw] text-neutral-300 mt-[1vh] flex justify-between">
+                <div className="max-w-[15vw]">
                     {genres.map((genre, index) => (
                         <span key={genre} className="inline-flex items-start">
-                            <span className="text-white font-normal text-[1.1em]">
+                            <span className="text-white font-normal text-[1vw]">
                                 {genre}
                             </span>
                             {index < genres.length - 1 && (
-                                <span className="text-neutral-500 ml-2 mr-2 -mt-1 text-xl">
+                                <span className="text-neutral-500 ml-[0.5vw] mr-[0.5vw] -mt-[0.3vh] text-[1.2vw]">
                                     •
                                 </span>
                             )}
                         </span>
                     ))}
                 </div>
-                <div className="text-neutral-400 flex items-center gap-1">
-                    <AlarmClock size={15} strokeWidth={3} />
+
+                <div className="text-neutral-400 flex items-center gap-[0.3vw] absolute right-[1vw]">
+                    <AlarmClock size={14} strokeWidth={3} />
                     {duration}
                 </div>
             </div>

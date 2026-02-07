@@ -7,16 +7,76 @@ export const getAllContent = async (req, res) => {
 };
 
 export const getContentById = async (req, res) => {
-  const { contentId } = req.params;
+  try {
+    const { contentId } = req.params; // or req.query
 
-  const content = await contentService.getContentById(contentId);
+    if (!contentId) {
+      return res.status(400).json({ error: "contentId is required" });
+    }
 
-  if (!content) {
-    return res.status(404).json({ error: "Content not found" });
+    const sql = `
+      SELECT
+        c.content_id,
+        c.title,
+        c.description,
+        c.type,
+        c.poster_1,
+        c.poster_2,
+        c.imdb_rating,
+        c.release_date,
+        c.ingest_status,
+
+        ARRAY_AGG(DISTINCT g.name) AS genres,
+
+        CASE
+          WHEN c.type = 'movie' THEN m.duration::text
+          WHEN c.type = 'series' THEN COUNT(e.episode_id)::text
+        END AS duration_or_episode_count,
+
+        COALESCE(m.movie_id, first_ep.episode_id) AS movie_or_episode_id
+
+      FROM content c
+
+      LEFT JOIN content_genres cg ON cg.content_id = c.content_id
+      LEFT JOIN genres g ON g.genre_id = cg.genre_id
+
+      -- 🎬 movie
+      LEFT JOIN movies m ON m.content_id = c.content_id
+
+      -- 📺 episodes (for count)
+      LEFT JOIN episodes e ON e.content_id = c.content_id
+
+      -- 📺 first episode only
+      LEFT JOIN LATERAL (
+        SELECT e2.episode_id
+        FROM episodes e2
+        WHERE e2.content_id = c.content_id
+        ORDER BY e2.episode_number ASC
+        LIMIT 1
+      ) first_ep ON TRUE
+
+      WHERE c.content_id = $1
+
+      GROUP BY
+        c.content_id,
+        m.movie_id,
+        m.duration,
+        first_ep.episode_id
+    `;
+
+    const { rows } = await query(sql, [contentId]);
+
+    if (!rows.length) {
+      return res.status(404).json({ error: "Content not found" });
+    }
+
+    res.json(rows[0]); // single object instead of array
+  } catch (err) {
+    console.error("getSingleContent error:", err);
+    res.status(500).json({ error: "Internal server error" });
   }
-
-  res.json(content);
 };
+
 
 export const getEpisodesBySeries = async (req, res) => {
   const { contentId } = req.params;
@@ -139,11 +199,9 @@ export const getContentCollection = async (req, res) => {
 
 export const getSimilarContent = async (req, res) => {
   try {
-    const { contentId, count } = req.params;
+    const { contentId } = req.params;
 
-    const limit = Math.min(Number(count) || 10, 50);
-
-    const results = await contentService.getSimilarContent(contentId, limit);
+    const results = await contentService.getSimilarContent(contentId);
 
     res.json(results);
   } catch (err) {

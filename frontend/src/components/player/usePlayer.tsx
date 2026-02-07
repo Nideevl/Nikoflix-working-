@@ -1,13 +1,16 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import Hls from "hls.js";
 import { Volume1, Volume2, VolumeX } from "lucide-react";
 import { createRoot } from "react-dom/client";
 import type { LucideIcon } from "lucide-react";
+import useDisablePageScroll from "@/components/useDisablePageScroll";
 
 export default function usePlayer(movie_id?: string) {
+
+  const volumeRootRef = useRef<any>(null);
+  useDisablePageScroll();
   useEffect(() => {
     if (!movie_id) return;
-
     const video = document.getElementById("video") as HTMLVideoElement | null;
     const player = document.getElementById("player") as HTMLDivElement | null;
     const overlay = document.getElementById("overlay") as HTMLDivElement | null;
@@ -30,7 +33,7 @@ export default function usePlayer(movie_id?: string) {
     let hls: Hls | null = null;
     let uiTimer: any = null;
 
-    // ================= HLS INIT =================
+    // ================= HLS INIT =======================
     if (Hls.isSupported()) {
       hls = new Hls({ enableWebVTT: true, renderTextTracksNatively: true });
       hls.loadSource(source);
@@ -49,7 +52,6 @@ export default function usePlayer(movie_id?: string) {
       }
 
       clearTimeout(uiTimer);
-
       // keep UI visible when paused
       if (video?.paused) return;
 
@@ -71,7 +73,7 @@ export default function usePlayer(movie_id?: string) {
 
     video.addEventListener("play", showUI);
 
-    // ================= PLAY / PAUSE =================
+    // ================= PLAY / PAUSE ===================
     function togglePlay() {
       if (!video) return;
 
@@ -95,7 +97,6 @@ export default function usePlayer(movie_id?: string) {
     // IMPORTANT: prevent UI buttons from pausing video
     player.onclick = (e: any) => {
       const el = e.target as HTMLElement;
-
       // ✅ if click is inside any UI element, don't toggle play
       if (el.closest("[data-player-ui]") || el.closest("button")) return;
 
@@ -105,7 +106,7 @@ export default function usePlayer(movie_id?: string) {
 
     if (playBtn) playBtn.onclick = togglePlay;
 
-    // ================= SKIP BUTTONS =================
+    // ================== SKIP BUTTONS ===================
     function animateButton(el: HTMLElement | null) {
       if (!el) return;
       el.style.transform = "scale(1.25)";
@@ -132,14 +133,20 @@ export default function usePlayer(movie_id?: string) {
       };
     }
 
-    // ================= VOLUME ICON =================
-    let volumeRoot: any = null;
+    // ================= VOLUME ICON ====================
 
     function renderVolumeIcon(Icon: LucideIcon) {
       if (!volumeIconEl) return;
-      if (!volumeRoot) volumeRoot = createRoot(volumeIconEl);
-      volumeRoot.render(<Icon fill="white" stroke="white" size={24} />);
+
+      if (!volumeRootRef.current) {
+        volumeRootRef.current = createRoot(volumeIconEl);
+      }
+
+      volumeRootRef.current.render(
+        <Icon fill="white" stroke="white" size={24} />
+      );
     }
+
 
     function updateVolumeIcon() {
       if (!video) return;

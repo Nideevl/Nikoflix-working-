@@ -13,7 +13,7 @@ const router = express.Router();
 router.get("/", getAllContent);
 router.get("/row", getContentRow);
 router.get("/collection/:contentId", getContentCollection);
-router.get("/similar/:contentId/:count", getSimilarContent);
+router.get("/similar/:contentId", getSimilarContent);
 router.get("/:contentId", getContentById);
 router.get("/:contentId/episodes", getEpisodesBySeries);
 
