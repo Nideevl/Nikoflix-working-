@@ -44,6 +44,6 @@ app.use("/content", contentRoutes);
 app.use('/auth', authRoutes);
 app.use("/comments", commentsRoutes);
 app.use("/likes", likesRoutes);
-app.use("/payments", paymentsRoutes);
+// app.use("/payments", paymentsRoutes);
 
 export default app;
