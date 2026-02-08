@@ -26,7 +26,7 @@
 
     return (
       <header
-        className={`fixed top-0 w-full z-50 duration-1100 transition-all ${isOverlayOpen || scrolled
+        className={`fixed top-0 w-full z-50 duration-300 transition-all ${isOverlayOpen || scrolled
             ? "bg-black"
             : "bg-gradient-to-b from-[rgba(0,0,0,0.5)] from-10% to-transparent"
           }`}

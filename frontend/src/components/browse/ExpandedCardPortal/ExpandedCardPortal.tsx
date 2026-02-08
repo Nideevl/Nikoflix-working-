@@ -147,7 +147,7 @@ const Ya = typeof window !== "undefined"
     transform: originRect
       ? animate
         ? `translate(40%) scale(1)`
-        : `translate(${XaPx}px, ${Ya-6.5}vh) scale(${scale})`
+        : `translate(${XaPx}px, ${Ya-6.7}vh) scale(${scale})`
       : animate
         ? `translate(40%) scale(1)`
         : `translate(45%) scale(0.90)`,
@@ -156,7 +156,7 @@ const Ya = typeof window !== "undefined"
 
     opacity: closing
       ? originRect
-        ? 0.5
+        ? 0.8
         : 0.1
       : 1,
 

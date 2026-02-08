@@ -8,9 +8,8 @@ import {
     CalendarFold,
 } from "lucide-react";
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { CardItem } from "./types";
-import { useRouter } from "next/navigation";
 
 export default function ExpandedPreview({
     item,
@@ -30,7 +29,47 @@ export default function ExpandedPreview({
     onClick?: () => void;
 }) {
     const [imgError, setImgError] = useState(false);
-    const router = useRouter();
+
+    const shouldShow = isHovered || isOpen;
+
+    // controls mount/unmount
+    const [isMounted, setIsMounted] = useState(false);
+
+    // controls animation state
+    const [animate, setAnimate] = useState(false);
+
+    // opacity animations
+    const [imageOpacity, setImageOpacity] = useState(0.5);
+    const [infoOpacity, setInfoOpacity] = useState(0);
+
+    /* --------------------------
+       HANDLE MOUNT + ANIMATION
+    -------------------------- */
+    useEffect(() => {
+        if (shouldShow) {
+            setIsMounted(true);
+
+            requestAnimationFrame(() => {
+                setAnimate(true);
+                setImageOpacity(1);
+                setInfoOpacity(1);
+            });
+        } else {
+            // play closing animation
+            setAnimate(false);
+            setImageOpacity(0.5);
+            setInfoOpacity(0);
+
+            // unmount AFTER animation finishes
+            const timeout = setTimeout(() => {
+                setIsMounted(false);
+            }, 260); // slightly more than transform duration
+
+            return () => clearTimeout(timeout);
+        }
+    }, [shouldShow]);
+
+    if (!isMounted) return null;
 
     const poster = item.poster_1 || item.poster_2 || item.poster_url;
 
@@ -38,15 +77,15 @@ export default function ExpandedPreview({
         cardType === "First"
             ? "left top"
             : cardType === "Last"
-            ? "right top"
-            : "center top";
+                ? "right top"
+                : "center top";
 
     const leftOffset =
         cardType === "First"
             ? "0vw"
             : cardType === "Last"
-            ? "calc(100% - 22vw)"
-            : "-3.5vw";
+                ? "calc(100% - 22vw)"
+                : "-3.5vw";
 
     const year = item.release_date
         ? new Date(item.release_date).getFullYear()
@@ -71,64 +110,67 @@ export default function ExpandedPreview({
     const duration = formatDuration(item.duration_or_episode_count);
     const genres: string[] = (item.genres || ["Action", "Drama"]).slice(0, 3);
 
-    const shouldShow = isHovered || isOpen;
-
     return (
-        <>
-            {/* ================= HOVER MODE ================= */}
-            {!isOpen && (
-                <div
-                    data-open
-                    data-type={item.type}
-                    data-id={item.content_id}
-                    className={`
-                        absolute z-[100]
-                        rounded-xl overflow-hidden
-                        transition-all duration-300 ease-out
-                        ${
-                            shouldShow
-                                ? "opacity-100 scale-110"
-                                : "opacity-0 scale-95 pointer-events-none"
-                        }
-                    `}
-                    style={{
-                        width: "22vw",
-                        top: "-10vh",
-                        left: leftOffset,
-                        transformOrigin: origin,
-                        boxShadow: "0 2vh 4vh rgba(0,0,0,1)",
-                        background: "#141414",
-                    }}
-                    onMouseEnter={onEnter}
-                    onMouseLeave={onLeave}
-                    onClick={onClick}
-                >
-                    {/* IMAGE */}
-                    <div className="relative bg-black" style={{ height: "26vh" }}>
-                        {poster && !imgError ? (
-                            <Image
-                                src={poster}
-                                alt={item.title}
-                                fill
-                                className="object-cover"
-                                onError={() => setImgError(true)}
-                            />
-                        ) : (
-                            <div className="absolute inset-0 flex items-center justify-center text-neutral-600">
-                                No image
-                            </div>
-                        )}
-                    </div>
+        <div
+            data-open
+            data-type={item.type}
+            data-id={item.content_id}
+            className="absolute z-[100] rounded-[7px] overflow-hidden"
+            style={{
+                width: "22vw",
+                top: "0vh",
+                left: leftOffset,
+                transformOrigin: origin,
+                boxShadow: "0 2vh 4vh rgba(0,0,0,1)",
+                background: "#141414",
 
-                    <InfoSection
-                        item={item}
-                        year={year}
-                        duration={duration}
-                        genres={genres}
+                transform: animate
+                    ? "translateY(-19vh) scale(1.015)"
+                    : "translateY(0vh) scale(0.68)",
+
+                opacity: animate ? 1 : 0.4,
+
+                transition: animate
+                    ? "transform 200ms cubic-bezier(0.3, 0, 0.6, 1), opacity 160ms ease"
+                    : "transform 120ms cubic-bezier(0.4, 0, 1, 1), opacity 100ms ease",
+
+            }}
+            onMouseEnter={onEnter}
+            onMouseLeave={onLeave}
+            onClick={onClick}
+        >
+            {/* IMAGE */}
+            <div
+                className="relative bg-black"
+                style={{
+                    height: "28vh",
+                    opacity: imageOpacity,
+                    transition: "opacity 150ms ease",
+                }}
+            >
+                {poster && !imgError ? (
+                    <Image
+                        src={poster}
+                        alt={item.title}
+                        fill
+                        className="object-cover"
+                        onError={() => setImgError(true)}
                     />
-                </div>
-            )}
-        </>
+                ) : (
+                    <div className="absolute inset-0 flex items-center justify-center text-neutral-600">
+                        No image
+                    </div>
+                )}
+            </div>
+
+            <InfoSection
+                item={item}
+                year={year}
+                duration={duration}
+                genres={genres}
+                opacity={infoOpacity}
+            />
+        </div>
     );
 }
 
@@ -138,14 +180,23 @@ function InfoSection({
     year,
     duration,
     genres,
+    opacity,
 }: {
     item: CardItem;
     year: string;
     duration: string;
     genres: string[];
+    opacity: number;
 }) {
     return (
-        <div className="bg-[#141414]" style={{ padding: "2vh 1.2vw" }}>
+        <div
+            className="bg-[#141414]"
+            style={{
+                padding: "2vh 1.2vw",
+                opacity,
+                transition: "opacity 250ms ease",
+            }}
+        >
             <div className="flex items-center gap-[1vw]">
                 <button className="w-[2.8vw] h-[2.8vw] bg-white text-black rounded-full flex items-center justify-center hover:bg-white/90 transition">
                     <Play size={20} className="fill-black" />
