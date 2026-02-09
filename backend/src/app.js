@@ -9,7 +9,7 @@ import contentRoutes from "./modules/content/content.routes.js";
 import adminRoutes from "./modules/admin/admin.routes.js";
 import playbackRoutes from "./modules/playback/playback.routes.js";
 import movieRoutes from "./modules/movies/movies.routes.js";
-import purchaseRoutes from "./modules/payments/payments.routes.js";
+//import purchaseRoutes from "./modules/payments/payments.routes.js";
 import subscriptionsRoutes from "./modules/subscriptions/subscriptions.routes.js"
 // import paymentsRoutes from "./modules/payments/payments.routes.js";
 
