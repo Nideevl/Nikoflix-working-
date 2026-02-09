@@ -17,7 +17,7 @@ const app = express(); // new Express application instance
 
 app.use(
   cors({
-    origin: "http://localhost:3000",
+    origin: "https://www.nikoflix.com",
     credentials: true
   })
 );
