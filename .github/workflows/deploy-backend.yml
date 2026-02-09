@@ -16,9 +16,14 @@ jobs:
           host: ${{ secrets.VM_HOST }}
           username: ${{ secrets.VM_USER }}
           key: ${{ secrets.VM_SSH_KEY }}
+          debug: true
           script: |
+            echo "Connected to server"
+            whoami
+            pwd
             cd ~/Nikoflix-working
             git pull
             cd backend
             npm install
             pm2 restart nikoflix-backend || pm2 start src/server.js --name nikoflix-backend
+
