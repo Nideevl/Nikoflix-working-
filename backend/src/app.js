@@ -17,7 +17,7 @@ const app = express(); // new Express application instance
 
 app.use(
   cors({
-    origin: "https://www.nikoflix.com",
+    origin: process.env.FRONTEND_URL,
     credentials: true
   })
 );
