@@ -9,7 +9,7 @@ export default function AdminLogin() {
   const router = useRouter();
 
   const login = async () => {
-    const res = await fetch("http://localhost:5000/admin/login", {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/admin/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, password }),

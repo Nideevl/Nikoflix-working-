@@ -14,7 +14,7 @@ export default function VerifyOtp() {
   const [password, setPassword] = useState("");
 
   const verify = async () => {
-    const res = await fetch("http://localhost:5000/admin/signup/verify", {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/admin/signup/verify`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, otpUser, otpAdmin, password }),

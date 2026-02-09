@@ -36,7 +36,7 @@ export default function CreateSeriesForm() {
   useEffect(() => {
     if (!token) return;
 
-    fetch("http://localhost:5000/admin/genres", {
+    fetch(`${process.env.NEXT_PUBLIC_API_BASE}/admin/genres`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((res) => res.json())
@@ -103,7 +103,7 @@ export default function CreateSeriesForm() {
       parent_id: s.parent_id || null, // ✅ send only id
     }));
 
-    const res = await fetch("http://localhost:5000/admin/series/bulk", {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/admin/series/bulk`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

@@ -26,7 +26,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
 
       try {
-        const res = await fetch("http://localhost:5000/auth/verify-token", {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/auth/verify-token`, {
           headers: { Authorization: `Bearer ${stored}` },
         });
 

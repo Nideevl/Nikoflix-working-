@@ -34,7 +34,7 @@ export default function SeriesEditor({ series }: { series: any }) {
   useEffect(() => {
     if (!token) return;
 
-    fetch("http://localhost:5000/admin/genres", {
+    fetch(`${process.env.NEXT_PUBLIC_API_BASE}/admin/genres`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((res) => res.json())
@@ -45,7 +45,7 @@ export default function SeriesEditor({ series }: { series: any }) {
   useEffect(() => {
     if (!series?.content_id || !token) return;
 
-    fetch(`http://localhost:5000/admin/content/${series.content_id}/genres`, {
+    fetch(`${process.env.NEXT_PUBLIC_API_BASE}/admin/content/${series.content_id}/genres`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((res) => res.json())
@@ -81,7 +81,7 @@ export default function SeriesEditor({ series }: { series: any }) {
 
   const updateSeries = async () => {
     const res = await fetch(
-      `http://localhost:5000/admin/content/${form.content_id}`,
+      `NEXT_PUBLIC_API_BASE/admin/content/${form.content_id}`,
       {
         method: "PUT",
         headers: {
@@ -121,7 +121,7 @@ export default function SeriesEditor({ series }: { series: any }) {
     }
 
     const res = await fetch(
-      `http://localhost:5000/admin/series/${form.content_id}`,
+      `NEXT_PUBLIC_API_BASE/admin/series/${form.content_id}`,
       {
         method: "DELETE",
         headers: {

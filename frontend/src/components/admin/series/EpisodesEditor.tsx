@@ -21,7 +21,7 @@ export default function EpisodesEditor({ contentId }: { contentId: string }) {
   const token = localStorage.getItem("admin_token");
 
   useEffect(() => {
-    fetch(`http://localhost:5000/admin/episodes/${contentId}`, {
+    fetch(`NEXT_PUBLIC_API_BASE/admin/episodes/${contentId}`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((res) => res.json())
@@ -105,7 +105,7 @@ export default function EpisodesEditor({ contentId }: { contentId: string }) {
       episode_number: Number(ep.episode_number),
     }));
 
-    const res = await fetch("http://localhost:5000/admin/episodes/update-bulk", {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/admin/episodes/update-bulk`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -154,7 +154,7 @@ export default function EpisodesEditor({ contentId }: { contentId: string }) {
       episode_number: Number(ep.episode_number),
     }));
 
-    const res = await fetch("http://localhost:5000/admin/episodes/bulk", {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/admin/episodes/bulk`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

@@ -28,7 +28,7 @@ export default function MovieEditor({ movie }: { movie: any }) {
   useEffect(() => {
     if (!token) return;
 
-    fetch("http://localhost:5000/admin/genres", {
+    fetch(`${process.env.NEXT_PUBLIC_API_BASE}/admin/genres`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((res) => res.json())
@@ -39,7 +39,7 @@ export default function MovieEditor({ movie }: { movie: any }) {
   useEffect(() => {
     if (!movie?.content_id || !token) return;
 
-    fetch(`http://localhost:5000/admin/content/${movie.content_id}/genres`, {
+    fetch(`NEXT_PUBLIC_API_BASE/admin/content/${movie.content_id}/genres`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((res) => res.json())
@@ -97,7 +97,7 @@ export default function MovieEditor({ movie }: { movie: any }) {
   const updateMovie = async () => {
     try {
       const res = await fetch(
-        `http://localhost:5000/admin/movies/${form.content_id}`,
+        `NEXT_PUBLIC_API_BASE/admin/movies/${form.content_id}`,
         {
           method: "PUT",
           headers: {
@@ -145,7 +145,7 @@ export default function MovieEditor({ movie }: { movie: any }) {
 
     try {
       const res = await fetch(
-        `http://localhost:5000/admin/movie/${form.content_id}`,
+        `NEXT_PUBLIC_API_BASE/admin/movie/${form.content_id}`,
         {
           method: "DELETE",
           headers: {

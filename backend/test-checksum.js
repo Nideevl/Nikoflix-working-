@@ -9,7 +9,7 @@
 //   INDUSTRY_TYPE_ID: 'Retail',
 //   WEBSITE: 'WEBSTAGING',
 //   TXN_AMOUNT: '2.00',
-//   CALLBACK_URL: 'http://localhost:5000/payments/paytm/callback'
+//   CALLBACK_URL: 'NEXT_PUBLIC_API_BASE/payments/paytm/callback'
 // };
 
 // // Replace with your actual merchant key

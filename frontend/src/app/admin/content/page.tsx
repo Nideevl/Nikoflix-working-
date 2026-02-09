@@ -8,7 +8,7 @@ export default function ContentPage() {
   useEffect(() => {
     const token = localStorage.getItem("admin_token");
 
-    fetch("http://localhost:5000/admin/content", {
+    fetch(`${process.env.NEXT_PUBLIC_API_BASE}/admin/content`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },

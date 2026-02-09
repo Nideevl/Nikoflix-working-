@@ -8,7 +8,7 @@ export default function AdminSignup() {
   const router = useRouter();
 
   const requestOtp = async () => {
-    const res = await fetch("http://localhost:5000/admin/signup/request", {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/admin/signup/request`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email }),

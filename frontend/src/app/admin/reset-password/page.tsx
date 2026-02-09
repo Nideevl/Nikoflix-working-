@@ -1,3 +1,5 @@
+"use client"
+
 import { useState } from "react";
 
 export default function ResetPassword() {
@@ -7,7 +9,7 @@ export default function ResetPassword() {
   const [step, setStep] = useState(1);
 
   const sendOtp = async () => {
-    const res = await fetch("http://localhost:5000/admin/reset/request", {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/admin/reset/request`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email }),
@@ -18,7 +20,7 @@ export default function ResetPassword() {
   };
 
   const reset = async () => {
-    const res = await fetch("http://localhost:5000/admin/reset/verify", {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/admin/reset/verify`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, otp, newPassword: password }),

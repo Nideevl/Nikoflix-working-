@@ -52,7 +52,7 @@ export default function UploadMoviePage() {
   useEffect(() => {
     if (!token) return;
 
-    fetch("http://localhost:5000/admin/genres", {
+    fetch(`${process.env.NEXT_PUBLIC_API_BASE}/admin/genres`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((res) => res.json())
@@ -134,7 +134,7 @@ export default function UploadMoviePage() {
       parent_id: m.parent_id, // ✅ send parent_id only
     }));
 
-    const res = await fetch("http://localhost:5000/admin/movies/bulk", {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/admin/movies/bulk`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
