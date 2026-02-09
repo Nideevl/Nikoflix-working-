@@ -1,3 +1,5 @@
+"use client"
+
 import { RefObject } from "react";
 import { MotionValue } from "framer-motion";
 import {useEffect} from 'react'

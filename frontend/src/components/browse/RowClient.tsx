@@ -1,4 +1,5 @@
 // components/browse/RowClient.tsx
+"use client"
 
 import Image from "next/image";
 import { ChevronLeft, ChevronRight } from "lucide-react";

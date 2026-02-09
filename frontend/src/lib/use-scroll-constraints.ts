@@ -1,4 +1,6 @@
-import { useRef, useEffect, useState } from "react";
+"use client"
+
+import { useEffect, useState } from "react";
 
 export function useScrollConstraints(
   ref: React.RefObject<HTMLElement>,

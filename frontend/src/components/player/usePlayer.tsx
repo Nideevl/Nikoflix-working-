@@ -1,3 +1,5 @@
+"use client"
+
 import { useEffect, useRef } from "react";
 import Hls from "hls.js";
 import { Volume1, Volume2, VolumeX } from "lucide-react";
