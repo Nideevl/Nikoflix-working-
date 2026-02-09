@@ -11,45 +11,39 @@ jobs:
 
     steps:
 
-      # STEP 1 — verify secrets exist
+      # STEP 1 — confirm secrets exist
       - name: Check secrets presence
         run: |
           echo "Checking secrets..."
-          if [ -z "${{ secrets.VM_HOST }}" ]; then echo "VM_HOST missing"; exit 1; else echo "VM_HOST ok"; fi
-          if [ -z "${{ secrets.VM_USER }}" ]; then echo "VM_USER missing"; exit 1; else echo "VM_USER ok"; fi
-          if [ -z "${{ secrets.VM_SSH_KEY }}" ]; then echo "VM_SSH_KEY missing"; exit 1; else echo "VM_SSH_KEY ok"; fi
+          [ -z "${{ secrets.VM_HOST }}" ] && echo "VM_HOST missing" && exit 1 || echo "VM_HOST ok"
+          [ -z "${{ secrets.VM_USER }}" ] && echo "VM_USER missing" && exit 1 || echo "VM_USER ok"
+          [ -z "${{ secrets.VM_SSH_KEY }}" ] && echo "VM_SSH_KEY missing" && exit 1 || echo "VM_SSH_KEY ok"
 
 
-      # STEP 2 — debug EXACT host value
-      - name: Debug VM host raw
-        run: |
-          echo "Printing VM_HOST with delimiters:"
-          echo ">>>${{ secrets.VM_HOST }}<<<"
-
-          echo "Length of host:"
-          echo "${{ secrets.VM_HOST }}" | wc -c
-
-          echo "Trying DNS resolve:"
-          nslookup "${{ secrets.VM_HOST }}" || true
-
-
-      # STEP 3 — write SSH key to file exactly
+      # STEP 2 — write SSH private key to file
       - name: Prepare SSH key
         run: |
           echo "${{ secrets.VM_SSH_KEY }}" > key.pem
           chmod 600 key.pem
 
 
-      # STEP 4 — test SSH connection only
+      # STEP 3 — set connection variables from secrets
+      - name: Set connection variables
+        run: |
+          echo "HOST=${{ secrets.VM_HOST }}" >> $GITHUB_ENV
+          echo "USER=${{ secrets.VM_USER }}" >> $GITHUB_ENV
+
+
+      # STEP 4 — test SSH connection
       - name: SSH test connection
         run: |
-          ssh -i key.pem -o StrictHostKeyChecking=no ${{ secrets.VM_USER }}@${{ secrets.VM_HOST }} "echo CONNECTED"
+          ssh -i key.pem -o StrictHostKeyChecking=no $USER@$HOST "echo CONNECTED"
 
 
-      # STEP 5 — actual deploy (will run only if SSH works)
+      # STEP 5 — deploy backend
       - name: Deploy backend
         run: |
-          ssh -i key.pem -o StrictHostKeyChecking=no ${{ secrets.VM_USER }}@${{ secrets.VM_HOST }} "
+          ssh -i key.pem -o StrictHostKeyChecking=no $USER@$HOST "
             cd ~/Nikoflix-working &&
             git pull &&
             cd backend &&
