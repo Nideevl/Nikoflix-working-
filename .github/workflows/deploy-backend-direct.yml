@@ -1,4 +1,4 @@
-name: Direct SSH Deploy NikoFlix Backend
+name: Deploy NikoFlix Backend to Oracle VM
 
 on:
   push:
@@ -11,28 +11,48 @@ jobs:
 
     steps:
 
-      - name: Verify secrets
+      # STEP 1 — verify secrets exist
+      - name: Check secrets presence
         run: |
           echo "Checking secrets..."
-          [ -z "${{ secrets.VM_HOST }}" ] && echo "VM_HOST missing" && exit 1 || echo "VM_HOST ok"
-          [ -z "${{ secrets.VM_USER }}" ] && echo "VM_USER missing" && exit 1 || echo "VM_USER ok"
-          [ -z "${{ secrets.VM_SSH_KEY }}" ] && echo "VM_SSH_KEY missing" && exit 1 || echo "VM_SSH_KEY ok"
+          if [ -z "${{ secrets.VM_HOST }}" ]; then echo "VM_HOST missing"; exit 1; else echo "VM_HOST ok"; fi
+          if [ -z "${{ secrets.VM_USER }}" ]; then echo "VM_USER missing"; exit 1; else echo "VM_USER ok"; fi
+          if [ -z "${{ secrets.VM_SSH_KEY }}" ]; then echo "VM_SSH_KEY missing"; exit 1; else echo "VM_SSH_KEY ok"; fi
 
-      - name: Write SSH key
+
+      # STEP 2 — debug EXACT host value
+      - name: Debug VM host raw
+        run: |
+          echo "Printing VM_HOST with delimiters:"
+          echo ">>>${{ secrets.VM_HOST }}<<<"
+
+          echo "Length of host:"
+          echo "${{ secrets.VM_HOST }}" | wc -c
+
+          echo "Trying DNS resolve:"
+          nslookup "${{ secrets.VM_HOST }}" || true
+
+
+      # STEP 3 — write SSH key to file exactly
+      - name: Prepare SSH key
         run: |
           echo "${{ secrets.VM_SSH_KEY }}" > key.pem
           chmod 600 key.pem
 
-      - name: Test SSH
-        run: |
-          ssh -i key.pem -o StrictHostKeyChecking=no ${{ secrets.VM_USER }}@${{ secrets.VM_HOST }} "echo SSH SUCCESS"
 
+      # STEP 4 — test SSH connection only
+      - name: SSH test connection
+        run: |
+          ssh -i key.pem -o StrictHostKeyChecking=no ${{ secrets.VM_USER }}@${{ secrets.VM_HOST }} "echo CONNECTED"
+
+
+      # STEP 5 — actual deploy (will run only if SSH works)
       - name: Deploy backend
         run: |
-          ssh -i key.pem -o StrictHostKeyChecking=no ${{ secrets.VM_USER }}@${{ secrets.VM_HOST }} << 'EOF'
-            cd ~/Nikoflix-working
-            git pull
-            cd backend
-            npm install
+          ssh -i key.pem -o StrictHostKeyChecking=no ${{ secrets.VM_USER }}@${{ secrets.VM_HOST }} "
+            cd ~/Nikoflix-working &&
+            git pull &&
+            cd backend &&
+            npm install &&
             pm2 restart nikoflix-backend || pm2 start src/server.js --name nikoflix-backend
-          EOF
+          "
