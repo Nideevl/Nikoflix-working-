@@ -10,12 +10,17 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: SSH into VM and deploy backend
+      - name: Decode SSH key
+        run: |
+          echo "${{ secrets.VM_SSH_KEY }}" | base64 -d > private_key
+          chmod 600 private_key
+
+      - name: Deploy to Oracle VM
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.VM_HOST }}
           username: ${{ secrets.VM_USER }}
-          key: ${{ secrets.VM_SSH_KEY }}
+          key_path: private_key
           script: |
             cd ~/Nikoflix-working
             git pull
