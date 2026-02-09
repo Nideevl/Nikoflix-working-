@@ -37,7 +37,7 @@ app.get('/health', (req, res) => {
 });
 
 app.use("/subscriptions", subscriptionsRoutes);
-app.use("/buy", purchaseRoutes);
+// app.use("/buy", purchaseRoutes);
 app.use("/movies", movieRoutes);
 app.use("/play", playbackRoutes);
 app.use("/content", contentRoutes);
