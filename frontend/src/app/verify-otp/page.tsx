@@ -1,33 +1,10 @@
-"use client";
-
-import VerifyOtpForm from "@/components/auth/VerifyOtpForm";
-import { useSearchParams, useRouter } from "next/navigation";
+import { Suspense } from "react";
+import VerifyOtpClient from "@/components/auth/VerifyOtpClient";
 
 export default function VerifyOtpPage() {
-  const params = useSearchParams();
-  const router = useRouter();
-
-  const email = params.get("email") || "";
-
-  if (!email) {
-    return <div style={{ color: "white", textAlign: "center" }}>No email found</div>;
-  }
-
   return (
-    <div style={containerStyle}>
-      <VerifyOtpForm
-        email={email}
-        goBack={() => router.push("/signup")}
-        onVerified={(mail) => router.push(`/set-password?email=${mail}`)}
-      />
-    </div>
+    <Suspense fallback={<div style={{ color: "white", textAlign: "center" }}>Loading...</div>}>
+      <VerifyOtpClient />
+    </Suspense>
   );
 }
-
-const containerStyle = {
-  minHeight: "100vh",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  background: "#fff",
-};

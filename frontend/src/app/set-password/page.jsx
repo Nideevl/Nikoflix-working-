@@ -1,33 +1,10 @@
-"use client";
+import { Suspense } from "react";
+import SetPasswordClient from "@/components/auth/SetPasswordClient";
 
-import { useSearchParams, useRouter } from "next/navigation";
-import SetPasswordForm from "@/components/auth/setPasswordForm";
-
-export default function SetPasswordPage() {
-  const params = useSearchParams();
-  const router = useRouter();
-
-  const email = params.get("email") || "";
-
-  if (!email) {
-    return <div style={{ color: "white", textAlign: "center" }}>No email found</div>;
-  }
-
+export default function Page() {
   return (
-    <div style={containerStyle}>
-      <SetPasswordForm
-        email={email}
-        goBack={() => router.push(`/verify-otp?email=${email}`)}
-        close={() => router.push("/browse")}
-      />
-    </div>
+    <Suspense fallback={null}>
+      <SetPasswordClient />
+    </Suspense>
   );
 }
-
-const containerStyle = {
-  minHeight: "100vh",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  background: "#fff",
-};
