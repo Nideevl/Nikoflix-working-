@@ -11,6 +11,7 @@ import playbackRoutes from "./modules/playback/playback.routes.js";
 import movieRoutes from "./modules/movies/movies.routes.js";
 //import purchaseRoutes from "./modules/payments/payments.routes.js";
 import subscriptionsRoutes from "./modules/subscriptions/subscriptions.routes.js"
+import ingestRoutes from "./modules/ingest/ingestCallback.js"
 // import paymentsRoutes from "./modules/payments/payments.routes.js";
 
 const app = express(); // new Express application instance
@@ -44,6 +45,7 @@ app.use("/content", contentRoutes);
 app.use('/auth', authRoutes);
 app.use("/comments", commentsRoutes);
 app.use("/likes", likesRoutes);
+app.use("/internal", ingestRoutes);
 // app.use("/payments", paymentsRoutes);
 
 export default app;
