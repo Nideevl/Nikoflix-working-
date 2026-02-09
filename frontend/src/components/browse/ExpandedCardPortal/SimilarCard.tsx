@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import Image from "next/image";
 import { Plus } from "lucide-react";
 
-export default function SimilarCard({
+export default function   SimilarCard({
   item
 }: {
   item: any

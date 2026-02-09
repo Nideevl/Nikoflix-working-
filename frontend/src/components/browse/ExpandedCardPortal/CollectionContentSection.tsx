@@ -37,7 +37,7 @@ export default function CollectionContentSection({ item }: { item: any}) {
       {/* GRID */}
       <div className="grid grid-cols-3 gap-4">
         {data.map((d, i) => (
-          <SimilarCard key={i} item={d} onClick={()=>{setExpandedItem(d)}} />
+          <SimilarCard key={i} item={d}/>
         ))}
       </div>
     </div>

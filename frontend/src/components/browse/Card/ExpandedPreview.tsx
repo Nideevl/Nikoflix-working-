@@ -183,7 +183,7 @@ function InfoSection({
     opacity,
 }: {
     item: CardItem;
-    year: string;
+    year: string | number;
     duration: string;
     genres: string[];
     opacity: number;
