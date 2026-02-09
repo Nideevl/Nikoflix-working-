@@ -1,0 +1,38 @@
+name: Direct SSH Deploy NikoFlix Backend
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Verify secrets
+        run: |
+          echo "Checking secrets..."
+          [ -z "${{ secrets.VM_HOST }}" ] && echo "VM_HOST missing" && exit 1 || echo "VM_HOST ok"
+          [ -z "${{ secrets.VM_USER }}" ] && echo "VM_USER missing" && exit 1 || echo "VM_USER ok"
+          [ -z "${{ secrets.VM_SSH_KEY }}" ] && echo "VM_SSH_KEY missing" && exit 1 || echo "VM_SSH_KEY ok"
+
+      - name: Write SSH key
+        run: |
+          echo "${{ secrets.VM_SSH_KEY }}" > key.pem
+          chmod 600 key.pem
+
+      - name: Test SSH
+        run: |
+          ssh -i key.pem -o StrictHostKeyChecking=no ${{ secrets.VM_USER }}@${{ secrets.VM_HOST }} "echo SSH SUCCESS"
+
+      - name: Deploy backend
+        run: |
+          ssh -i key.pem -o StrictHostKeyChecking=no ${{ secrets.VM_USER }}@${{ secrets.VM_HOST }} << 'EOF'
+            cd ~/Nikoflix-working
+            git pull
+            cd backend
+            npm install
+            pm2 restart nikoflix-backend || pm2 start src/server.js --name nikoflix-backend
+          EOF
