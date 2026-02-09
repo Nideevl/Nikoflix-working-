@@ -17,5 +17,5 @@ export type CardProps = {
     className?: string;
     isSelected?: boolean;
     onClick?: () => void;
-    onOpen: (item: any) => void;
+    onOpen: (item: any, rect: DOMRect) => void;
 };

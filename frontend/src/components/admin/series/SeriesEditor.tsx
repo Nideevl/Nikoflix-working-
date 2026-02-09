@@ -81,7 +81,7 @@ export default function SeriesEditor({ series }: { series: any }) {
 
   const updateSeries = async () => {
     const res = await fetch(
-      `NEXT_PUBLIC_API_BASE/admin/content/${form.content_id}`,
+      `${process.env.NEXT_PUBLIC_API_BASE}/admin/content/${form.content_id}`,
       {
         method: "PUT",
         headers: {
@@ -121,7 +121,7 @@ export default function SeriesEditor({ series }: { series: any }) {
     }
 
     const res = await fetch(
-      `NEXT_PUBLIC_API_BASE/admin/series/${form.content_id}`,
+      `${process.env.NEXT_PUBLIC_API_BASE}/admin/series/${form.content_id}`,
       {
         method: "DELETE",
         headers: {

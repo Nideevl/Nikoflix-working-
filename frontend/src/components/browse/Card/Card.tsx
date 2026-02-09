@@ -8,7 +8,6 @@ import ExpandedPreview from "./ExpandedPreview";
 export default function Card({
   item,
   cardType = "",
-  className = "",
   isSelected = false,
   onOpen,
 }: CardProps & {

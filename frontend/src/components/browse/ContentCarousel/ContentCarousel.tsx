@@ -16,7 +16,7 @@ export default function ContentCarousel({
     title?: string;
     items?: any[];
     openId: string | null;
-    onOpen: (item: any) => void;
+    onOpen: (item: any, rect: DOMRect | null) => void;
 }) {
 
     const baseItems = React.useMemo(() => {
@@ -56,11 +56,8 @@ export default function ContentCarousel({
     const [isTransitioning, setIsTransitioning] = React.useState(false);
     const [isHovered, setIsHovered] = React.useState(false);
     const [hasMovedYet, setHasMovedYet] = React.useState(false);
-    const [hasClickedNext, setHasClickedNext] = React.useState(false);
-    const [navIndex, setNavIndex] = React.useState(0);
-    const [isFirstShiftClick, setIsFirstShiftClick] = React.useState(true);
-    const sliderRef = React.useRef(null);
-    const transitionTimeoutRef = React.useRef(null);
+    const sliderRef = React.useRef<HTMLDivElement | null>(null);
+    const transitionTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
 
     React.useEffect(() => {
         return () => {
@@ -176,7 +173,7 @@ export default function ContentCarousel({
                 >
                     {currentItems.map((item) => {
                         const position = item.position;
-                        let cardType = "";
+                        let cardType: "" | "First" | "Last" = "";
                         if ((position - 1) % 6 === 0) cardType = "First";
                         else if (position % 6 === 0) cardType = "Last";
 

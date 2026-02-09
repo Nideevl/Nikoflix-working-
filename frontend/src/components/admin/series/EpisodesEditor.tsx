@@ -21,7 +21,7 @@ export default function EpisodesEditor({ contentId }: { contentId: string }) {
   const token = localStorage.getItem("admin_token");
 
   useEffect(() => {
-    fetch(`NEXT_PUBLIC_API_BASE/admin/episodes/${contentId}`, {
+    fetch(`${process.env.NEXT_PUBLIC_API_BASE}/admin/episodes/${contentId}`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((res) => res.json())

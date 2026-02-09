@@ -31,7 +31,7 @@ export default function MovieSearch({
         const token = localStorage.getItem("admin_token");
 
         const response = await fetch(
-          `NEXT_PUBLIC_API_BASE/admin/movies/search?q=${encodeURIComponent(query)}`,
+          `${process.env.NEXT_PUBLIC_API_BASE}/admin/movies/search?q=${encodeURIComponent(query)}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,

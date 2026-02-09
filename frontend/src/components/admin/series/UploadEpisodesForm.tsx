@@ -20,7 +20,7 @@ export default function UploadEpisodesForm() {
   const fetchEpisodes = async (contentId: string) => {
     const token = localStorage.getItem("admin_token");
 
-    const res = await fetch(`NEXT_PUBLIC_API_BASE/admin/episodes/${contentId}`, {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/admin/episodes/${contentId}`, {
       headers: { Authorization: `Bearer ${token}` },
     });
 

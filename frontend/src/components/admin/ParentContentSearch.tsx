@@ -32,7 +32,7 @@ export default function ParentContentSearch({
       // ✅ Movie search
       if (!typeFilter || typeFilter === "movie") {
         const res = await fetch(
-          `NEXT_PUBLIC_API_BASE/admin/movies/search?q=${query}`,
+          `${process.env.NEXT_PUBLIC_API_BASE}/admin/movies/search?q=${query}`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }
@@ -50,7 +50,7 @@ export default function ParentContentSearch({
       // ✅ Series search
       if (!typeFilter || typeFilter === "series") {
         const res = await fetch(
-          `NEXT_PUBLIC_API_BASE/admin/series/search?q=${query}`,
+          `${process.env.NEXT_PUBLIC_API_BASE}/admin/series/search?q=${query}`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }

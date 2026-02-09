@@ -11,7 +11,7 @@ export default function SeriesSearch({ onSelect }: { onSelect: (s: any) => void 
 
     const token = localStorage.getItem("admin_token");
 
-    const res = fetch(`NEXT_PUBLIC_API_BASE/admin/series/search?q=${query}`, {
+    const res = fetch(`${process.env.NEXT_PUBLIC_API_BASE}/admin/series/search?q=${query}`, {
       headers: { Authorization: `Bearer ${token}` },
     })
     .then(res => res.json())
