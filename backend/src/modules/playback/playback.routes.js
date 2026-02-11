@@ -33,12 +33,15 @@ router.get("/movie/:movie_id", playbackAccessMiddleware, async (req, res) => {
   query(
     `UPDATE content SET last_accessed_at = now() WHERE content_id = $1`,
     [content_id]
-  ).catch(() => {});
+  ).catch(() => { });
 
   if (ingest_status === "READY") {
+    const path = `/movie/${movie_id}/master.m3u8`;
+    const signedUrl = generateBunnySignedUrl(path);
+
     return res.json({
       status: "READY",
-      source: `https://nikoflix.b-cdn.net/movie/${movie_id}/master.m3u8`
+      source: signedUrl
     });
   }
 
@@ -46,7 +49,7 @@ router.get("/movie/:movie_id", playbackAccessMiddleware, async (req, res) => {
     await triggerIngest({
       type: "movie",
       content_id,
-      media_id: movie_id,   // ✅ FIX
+      media_id: movie_id,
       source_url
     });
 
@@ -91,12 +94,15 @@ router.get("/episode/:episode_id", playbackAccessMiddleware, async (req, res) =>
   query(
     `UPDATE content SET last_accessed_at = now() WHERE content_id = $1`,
     [content_id]
-  ).catch(() => {});
+  ).catch(() => { });
 
   if (ingest_status === "READY") {
+    const path = `/episode/${episode_id}/master.m3u8`;
+    const signedUrl = generateBunnySignedUrl(path);
+
     return res.json({
       status: "READY",
-      source: `https://nikoflix.b-cdn.net/episode/${episode_id}/master.m3u8`
+      source: signedUrl
     });
   }
 

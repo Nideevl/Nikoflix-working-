@@ -62,7 +62,6 @@ export default function ExpandedActions({ item }: { item: any }) {
       );
 
       const data = await res.json();
-      console.log(data)
 
       // READY → go to player
       if (data.status === "READY") {
