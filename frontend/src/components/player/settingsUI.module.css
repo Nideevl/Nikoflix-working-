@@ -421,6 +421,7 @@
   padding: 0 18px 14px;
   gap: 8px;
   pointer-events: auto;
+  align-items: center;
 }
 
 /* progress bar wrapper */
