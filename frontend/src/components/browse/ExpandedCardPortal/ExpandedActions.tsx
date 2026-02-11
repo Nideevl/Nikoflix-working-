@@ -143,6 +143,7 @@ export default function ExpandedActions({ item }: { item: any }) {
         >
           <primaryAction.Icon
             size={25}
+            fill={ingestStatus === "READY" ? "black" : undefined}
             className={ 
               ingestStatus === "PREPARING" || ingestStatus === "INGESTING"
                 ? "spin-reverse"
