@@ -93,6 +93,7 @@ export default function ExpandedActions({ item }: { item: any }) {
           label: "Play",
           Icon: Play,
           disabled: false,
+          iconClass: "fill-black",
         };
 
       case "PREPARING":
