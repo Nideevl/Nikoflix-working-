@@ -7,12 +7,13 @@ import { createRoot } from "react-dom/client";
 import type { LucideIcon } from "lucide-react";
 import useDisablePageScroll from "@/components/useDisablePageScroll";
 
-export default function usePlayer(movie_id?: string) {
-
+export default function usePlayer(source?: string) {
   const volumeRootRef = useRef<any>(null);
   useDisablePageScroll();
+  
   useEffect(() => {
-    if (!movie_id) return;
+    if (!source) return;
+    
     const video = document.getElementById("video") as HTMLVideoElement | null;
     const player = document.getElementById("player") as HTMLDivElement | null;
     const overlay = document.getElementById("overlay") as HTMLDivElement | null;
@@ -23,38 +24,57 @@ export default function usePlayer(movie_id?: string) {
     const playBtn = document.getElementById("play") as HTMLButtonElement | null;
     const skipBack = document.getElementById("skipBack") as HTMLDivElement | null;
     const skipForward = document.getElementById("skipForward") as HTMLDivElement | null;
-
     const fsBtn = document.getElementById("fs") as HTMLButtonElement | null;
-
     const centerPlay = document.getElementById("centerPlay") as HTMLDivElement | null;
 
     if (!video || !player || !overlay) return;
 
-    const source = `https://nikoflix.b-cdn.net/movie/${movie_id}/master.m3u8`;
-
     let hls: Hls | null = null;
     let uiTimer: any = null;
 
-    // ================= HLS INIT =======================
+    // ================= EXTRACT TOKEN FROM SOURCE URL =================
+    const sourceUrl = new URL(source);
+    const token = sourceUrl.searchParams.get('token');
+    const expires = sourceUrl.searchParams.get('expires');
+    const tokenPath = sourceUrl.searchParams.get('token_path');
+
+    // ================= HLS INIT WITH TOKEN INJECTION =======================
     if (Hls.isSupported()) {
-      hls = new Hls({ enableWebVTT: true, renderTextTracksNatively: true });
+      hls = new Hls({
+        enableWebVTT: true,
+        renderTextTracksNatively: true,
+        xhrSetup: function (xhr, url) {
+          // Parse the URL
+          const requestUrl = new URL(url);
+          
+          // Only add token if it's from the same CDN and doesn't already have one
+          if (requestUrl.hostname === sourceUrl.hostname && !requestUrl.searchParams.has('token')) {
+            requestUrl.searchParams.set('token', token!);
+            requestUrl.searchParams.set('expires', expires!);
+            requestUrl.searchParams.set('token_path', tokenPath!);
+            
+            // Open the modified URL
+            xhr.open('GET', requestUrl.toString(), true);
+          }
+        }
+      });
+      
       hls.loadSource(source);
       hls.attachMedia(video);
       (window as any).__PLAYER_STATE__ = { hls, video };
     } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
       video.src = source;
       (window as any).__PLAYER_STATE__ = { hls, video };
-
     }
 
-    // ================= UI SHOW / HIDE =================
+    // ... rest of your code stays the same ...
+
     function showUI() {
       if ((window as any).__SHOW_UI__) {
         (window as any).__SHOW_UI__(true);
       }
 
       clearTimeout(uiTimer);
-      // keep UI visible when paused
       if (video?.paused) return;
 
       uiTimer = setTimeout(() => {
@@ -75,7 +95,6 @@ export default function usePlayer(movie_id?: string) {
 
     video.addEventListener("play", showUI);
 
-    // ================= PLAY / PAUSE ===================
     function togglePlay() {
       if (!video) return;
 
@@ -96,19 +115,14 @@ export default function usePlayer(movie_id?: string) {
       }
     }
 
-    // IMPORTANT: prevent UI buttons from pausing video
     player.onclick = (e: any) => {
       const el = e.target as HTMLElement;
-      // ✅ if click is inside any UI element, don't toggle play
       if (el.closest("[data-player-ui]") || el.closest("button")) return;
-
       togglePlay();
     };
 
-
     if (playBtn) playBtn.onclick = togglePlay;
 
-    // ================== SKIP BUTTONS ===================
     function animateButton(el: HTMLElement | null) {
       if (!el) return;
       el.style.transform = "scale(1.25)";
@@ -135,8 +149,6 @@ export default function usePlayer(movie_id?: string) {
       };
     }
 
-    // ================= VOLUME ICON ====================
-
     function renderVolumeIcon(Icon: LucideIcon) {
       if (!volumeIconEl) return;
 
@@ -148,7 +160,6 @@ export default function usePlayer(movie_id?: string) {
         <Icon fill="white" stroke="white" size={24} />
       );
     }
-
 
     function updateVolumeIcon() {
       if (!video) return;
@@ -185,22 +196,19 @@ export default function usePlayer(movie_id?: string) {
 
     if (volumeSlider) {
       volumeSlider.value = String(video.volume);
-
-      updateVolumeSliderUI(); // initial render
+      updateVolumeSliderUI();
 
       volumeSlider.oninput = (e: any) => {
         video.volume = parseFloat(e.target.value);
         video.muted = false;
         updateVolumeIcon();
-        updateVolumeSliderUI(); // 🔥 THIS FIXES OPERA
+        updateVolumeSliderUI();
       };
     }
 
     video.addEventListener("volumechange", updateVolumeSliderUI);
-
     updateVolumeIcon();
 
-    // ================= FULLSCREEN =================
     if (fsBtn) {
       fsBtn.onclick = (e) => {
         e.stopPropagation();
@@ -210,11 +218,11 @@ export default function usePlayer(movie_id?: string) {
       };
     }
 
-    // ================= KEYBOARD CONTROLS =================
     function handleKeydown(e: KeyboardEvent) {
       const target = e.target as HTMLElement;
       if (!video) return;
-            if (
+      
+      if (
         target.tagName === "INPUT" ||
         target.tagName === "TEXTAREA" ||
         target.isContentEditable
@@ -256,7 +264,6 @@ export default function usePlayer(movie_id?: string) {
     }
 
     document.addEventListener("keydown", handleKeydown);
-
     showUI();
 
     return () => {
@@ -266,5 +273,5 @@ export default function usePlayer(movie_id?: string) {
       video.removeEventListener("volumechange", updateVolumeIcon);
       if (hls) hls.destroy();
     };
-  }, [movie_id]);
+  }, [source]);
 }

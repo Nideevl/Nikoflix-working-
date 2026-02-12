@@ -1,19 +1,24 @@
 import crypto from "crypto";
 
-const BUNNY_TOKEN_KEY = process.env.BUNNY_TOKEN_KEY;
-const CDN_BASE = process.env.BUNNY_CDN_BASE;
+const KEY = process.env.BUNNY_TOKEN_KEY;
+const CDN = "https://nikoflix.b-cdn.net";
 
-/**
- * Generates Bunny signed URL valid for 6 hours
- * @param {string} path  -> /movie/<id>/master.m3u8
- */
 export function generateBunnySignedUrl(path) {
-  const expires = Math.floor(Date.now() / 1000) + (60 * 60 * 6); // 6 hours
-
-  const hash = crypto
+  const dirPath = path.endsWith('/') ? path : path + '/';
+  const expires = Math.floor(Date.now() / 1000) + 60 * 60 * 6;
+  
+  // For hash: use the directory path WITHOUT encoding
+  const hashBase = `${KEY}${dirPath}${expires}token_path=${dirPath}`;
+  
+  const token = crypto
     .createHash("sha256")
-    .update(BUNNY_TOKEN_KEY + path + expires)
-    .digest("hex");
-
-  return `${CDN_BASE}${path}?token=${hash}&expires=${expires}`;
+    .update(hashBase)
+    .digest("base64")
+    .replace(/\n/g, "")
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_")
+    .replace(/=/g, "");
+  
+  // In the URL: encode the token_path parameter
+  return `${CDN}${dirPath}master.m3u8?token=${token}&expires=${expires}&token_path=${encodeURIComponent(dirPath)}`;
 }

@@ -67,7 +67,11 @@ export default function ExpandedActions({ item }: { item: any }) {
       if (data.status === "READY") {
         setIngestStatus("READY");
 
-        router.push(`/playback/movie/${movieId}`);
+        // pass signed URL to player
+        router.push(
+          `/playback/movie/${movieId}?src=${encodeURIComponent(data.source)}`
+        );
+
         return;
       }
 
@@ -143,11 +147,11 @@ export default function ExpandedActions({ item }: { item: any }) {
           <primaryAction.Icon
             size={25}
             fill={ingestStatus === "READY" ? "black" : "none"}
-            className={ 
+            className={
               ingestStatus === "PREPARING" || ingestStatus === "INGESTING"
                 ? "spin-reverse"
                 : ""
-            } 
+            }
           />
           <span className="text-lg font-bold">
             {primaryAction.label}

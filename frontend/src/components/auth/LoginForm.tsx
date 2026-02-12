@@ -11,7 +11,7 @@ type LoginFormProps = {
 export default function LoginForm({ switchMode, close }: LoginFormProps) {
   const { login } = useAuth();
 
-  const [identifier, setIdentifier] = useState(""); // username OR email
+  const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -30,7 +30,7 @@ export default function LoginForm({ switchMode, close }: LoginFormProps) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          identifier, // 🔥 username or email
+          identifier,
           password,
         }),
       });
@@ -55,29 +55,63 @@ export default function LoginForm({ switchMode, close }: LoginFormProps) {
   }
 
   return (
-    <div>
-      <h2>Login</h2>
+    <div className="bg-black/80 w-[350px] sm:w-[450px] p-16 relative overflow-hidden">
+      {/* Red moving shine animation on right and bottom borders */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute right-0 bottom-[-70px] w-[2px] h-full bg-gradient-to-b from-transparent via-[#a9060f]" />
+        <div className="absolute bottom-0 right-[-70px] w-full h-[1.5px] bg-gradient-to-r from-transparent via-[#9c070f]" />
+      </div>
 
-      <input
-        placeholder="Username or Email"
-        value={identifier}
-        onChange={(e) => setIdentifier(e.target.value)}
-      />
+      <h2 className="text-white text-3xl font-bold mb-8 relative z-10">Sign In</h2>
 
-      <input
-        type="password"
-        placeholder="Password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-      />
+      <div className="space-y-4 relative z-10">
+        <input
+          placeholder="Email or phone number"
+          value={identifier}
+          onChange={(e) => setIdentifier(e.target.value)}
+          className="w-full h-12 px-4 bg-[#333] text-white placeholder-gray-400 border-none focus:outline-none focus:ring-2 focus:ring-white text-sm"
+        />
 
-      {error && <p style={{ color: "red" }}>{error}</p>}
+        <input
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          className="w-full h-12 px-4 bg-[#333] text-white placeholder-gray-400 border-none focus:outline-none focus:ring-2 focus:ring-white text-sm"
+        />
 
-      <button onClick={handleLogin} disabled={loading}>
-        {loading ? "Logging in..." : "Login"}
-      </button>
+        {error && (
+          <p className="text-[#e87c03] text-sm mt-1">
+            {error}
+          </p>
+        )}
 
-      <p onClick={switchMode}>Create account</p>
+        <button
+          onClick={handleLogin}
+          disabled={loading}
+          className="w-full h-12 mt-6 bg-[#e50914] text-white font-semibold text-base hover:bg-[#f6121d] transition duration-150 disabled:bg-[#e50914]/50 disabled:cursor-not-allowed"
+        >
+          {loading ? "Signing In..." : "Sign In"}
+        </button>
+
+        <div className="text-gray-400 text-sm flex items-center justify-between mt-3">
+          <label className="flex items-center gap-1">
+            <input type="checkbox" className="w-4 h-4 bg-gray-600" />
+            <span>Remember me</span>
+          </label>
+          <a href="#" className="hover:underline">
+            Need help?
+          </a>
+        </div>
+
+        <p
+          onClick={switchMode}
+          className="text-gray-400 text-center mt-8 cursor-pointer hover:underline"
+        >
+          <span className="text-gray-500">New to Netflix?</span>{" "}
+          <span className="text-white font-medium">Sign up now</span>
+        </p>
+      </div>
     </div>
   );
 }

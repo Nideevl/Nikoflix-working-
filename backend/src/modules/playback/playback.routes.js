@@ -2,6 +2,7 @@ import express from "express";
 import { playbackAccessMiddleware } from "../../middlewares/access.middleware.js";
 import { query } from "../../config/db.js";
 import { triggerIngest } from "../ingest/triggerIngest.js"
+import { generateBunnySignedUrl } from "../../utils/bunnyToken.js"
 
 const router = express.Router();
 
@@ -36,9 +37,10 @@ router.get("/movie/:movie_id", playbackAccessMiddleware, async (req, res) => {
   ).catch(() => { });
 
   if (ingest_status === "READY") {
-    const path = `/movie/${movie_id}/master.m3u8`;
+    const path = `/movie/${movie_id}/`;
     const signedUrl = generateBunnySignedUrl(path);
 
+    console.log(signedUrl)
     return res.json({
       status: "READY",
       source: signedUrl

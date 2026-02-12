@@ -56,12 +56,6 @@ const Ya = typeof window !== "undefined"
     return Math.max(0.2, Math.min(originRect.width / finalWidthPx, 1));
   }, [originRect]);
 
-  const modalLeftPx =
-    typeof window !== "undefined" ? window.innerWidth * 0.2 : 0;
-
-  const modalTopPx =
-    typeof window !== "undefined" ? window.innerHeight * 0.05 : 0;
-
   /* 🔹 Replace content when modal already open */
   useEffect(() => {
     if (!mounted) return;

@@ -12,9 +12,12 @@ export default function SignupForm({
 }) {
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
-  const [usernameStatus, setUsernameStatus] =
-    useState<"idle" | "checking" | "available" | "taken">("idle");
+  const [usernameStatus, setUsernameStatus] = useState<
+    "idle" | "checking" | "available" | "taken"
+  >("idle");
   const [typingTimer, setTypingTimer] = useState<any>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   // ✅ check username availability
   async function checkUsername(name: string) {
@@ -52,6 +55,7 @@ export default function SignupForm({
     const value = e.target.value;
     setUsername(value);
     setUsernameStatus("checking");
+    setError("");
 
     if (typingTimer) clearTimeout(typingTimer);
 
@@ -66,6 +70,7 @@ export default function SignupForm({
   // ✅ randomize button
   async function handleGenerateUsername() {
     setUsernameStatus("checking");
+    setError("");
 
     let name = "";
     let available = false;
@@ -84,59 +89,103 @@ export default function SignupForm({
   async function handleSignup() {
     if (!canSignup) return;
 
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/auth/signup`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, username }),
-    });
+    setLoading(true);
+    setError("");
 
-    const data = await res.json();
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/auth/signup`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, username }),
+      });
 
-    if (!res.ok) {
-      alert(data.error || "Signup failed");
-      return;
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data.error || "Signup failed");
+        return;
+      }
+
+      onOtp(email, username);
+    } catch (err) {
+      setError("Network error");
+    } finally {
+      setLoading(false);
     }
-
-    onOtp(email, username);
   }
 
   return (
-    <div>
-      <h2>Sign up</h2>
-
-      {/* Username Input + Random Button */}
-      <div style={{ display: "flex", gap: "8px" }}>
-        <input
-          value={username}
-          onChange={handleUsernameChange}
-          placeholder="Username"
-        />
-        <button onClick={handleGenerateUsername}>🎲</button>
+    <div className="bg-black/80 w-[350px] sm:w-[450px] p-16 relative overflow-hidden">
+      {/* Red moving shine animation on right and bottom borders */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute right-0 bottom-[-70px] w-[2px] h-full bg-gradient-to-b from-transparent via-[#a9060f]" />
+        <div className="absolute bottom-0 right-[-70px] w-full h-[1.5px] bg-gradient-to-r from-transparent via-[#9c070f]" />
       </div>
 
-      {/* Status */}
-      {usernameStatus === "checking" && (
-        <p style={{ color: "#aaa" }}>Checking username...</p>
-      )}
-      {usernameStatus === "available" && (
-        <p style={{ color: "green" }}>✅ Username available</p>
-      )}
-      {usernameStatus === "taken" && (
-        <p style={{ color: "red" }}>❌ Username already taken</p>
-      )}
+      <h2 className="text-white text-3xl font-bold mb-8 relative z-10">
+        Sign Up
+      </h2>
 
-      <input
-        type="email"
-        placeholder="Email"
-        value={email}
-        onChange={e => setEmail(e.target.value)}
-      />
+      <div className="space-y-4 relative z-10">
+        {/* Username Input with Random Button */}
+        <div className="flex gap-2">
+          <input
+            value={username}
+            onChange={handleUsernameChange}
+            placeholder="Username"
+            className="flex-1 h-12 px-4 bg-[#333] text-white placeholder-gray-400 border-none focus:outline-none focus:ring-2 focus:ring-white text-sm"
+          />
+          <button
+            onClick={handleGenerateUsername}
+            className="w-12 h-12 bg-[#333] text-white text-xl hover:bg-[#404040] transition duration-150 flex items-center justify-center"
+            title="Generate random username"
+          >
+            🎲
+          </button>
+        </div>
 
-      <button disabled={!canSignup} onClick={handleSignup}>
-        Send OTP
-      </button>
+        {/* Username Status */}
+        {usernameStatus === "checking" && (
+          <p className="text-gray-400 text-sm mt-1">Checking username...</p>
+        )}
+        {usernameStatus === "available" && (
+          <p className="text-green-500 text-sm mt-1">✅ Username available</p>
+        )}
+        {usernameStatus === "taken" && (
+          <p className="text-[#e87c03] text-sm mt-1">
+            ❌ Username already taken
+          </p>
+        )}
 
-      <p onClick={switchMode}>Already have an account? Login</p>
+        <input
+          type="email"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => {
+            setEmail(e.target.value);
+            setError("");
+          }}
+          className="w-full h-12 px-4 bg-[#333] text-white placeholder-gray-400 border-none focus:outline-none focus:ring-2 focus:ring-white text-sm"
+        />
+
+        {error && <p className="text-[#e87c03] text-sm mt-1">{error}</p>}
+
+        <button
+          onClick={handleSignup}
+          disabled={!canSignup || loading}
+          className="w-full h-12 mt-6 bg-[#e50914] text-white font-semibold text-base hover:bg-[#f6121d] transition duration-150 disabled:bg-[#e50914]/50 disabled:cursor-not-allowed"
+        >
+          {loading ? "Sending OTP..." : "Send OTP"}
+        </button>
+
+        <p
+          onClick={switchMode}
+          className="text-gray-400 text-center mt-8 cursor-pointer hover:underline"
+        >
+          <span className="text-gray-500">Already have an account?</span>{" "}
+          <span className="text-white font-medium">Sign in now</span>
+        </p>
+      </div>
     </div>
   );
 }

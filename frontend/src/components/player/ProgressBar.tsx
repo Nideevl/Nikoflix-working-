@@ -11,8 +11,9 @@ export default function ProgressBar() {
         const fill = document.getElementById("nf-progress-fill") as HTMLDivElement;
         const thumb = document.getElementById("nf-progress-thumb") as HTMLDivElement;
         const timeToggle = document.getElementById("timeToggle") as HTMLDivElement;
+        const hoverTime = document.getElementById("hoverTime") as HTMLDivElement;
 
-        if (!video || !bar || !fill || !thumb || !timeToggle || !buffered) return;
+        if (!video || !bar || !fill || !thumb || !timeToggle || !buffered || !hoverTime) return;
 
         let showRemaining = true;
         let isDragging = false;
@@ -105,6 +106,26 @@ export default function ProgressBar() {
             updateUI(video.currentTime);
         }
 
+        // ================= HOVER PREVIEW =================
+        function showHoverTime(e: MouseEvent) {
+            if (!video.duration) return;
+
+            const rect = bar.getBoundingClientRect();
+            const time = getTimeFromEvent(e);
+            const xPos = e.clientX - rect.left;
+
+            hoverTime.textContent = formatTime(time);
+            hoverTime.style.left = xPos + "px";
+            hoverTime.style.opacity = "1";
+        }
+
+        function hideHoverTime() {
+            hoverTime.style.opacity = "0";
+        }
+
+        bar.addEventListener("mousemove", showHoverTime);
+        bar.addEventListener("mouseleave", hideHoverTime);
+
         video.addEventListener("timeupdate", update);
         video.addEventListener("progress", updateBuffered);
         video.addEventListener("loadedmetadata", () => updateUI(video.currentTime));
@@ -117,6 +138,8 @@ export default function ProgressBar() {
             video.removeEventListener("timeupdate", update);
             video.removeEventListener("progress", updateBuffered);
             bar.removeEventListener("click", clickSeek);
+            bar.removeEventListener("mousemove", showHoverTime);
+            bar.removeEventListener("mouseleave", hideHoverTime);
             thumb.removeEventListener("mousedown", startDrag);
             timeToggle.removeEventListener("click", toggleTime);
             document.removeEventListener("mousemove", drag);
@@ -132,6 +155,7 @@ export default function ProgressBar() {
                     <div className={styles.nfProgressBuffered} id="nf-progress-buffered"></div>
                     <div className={styles.nfProgressFill} id="nf-progress-fill"></div>
                     <div className={styles.nfProgressThumb} id="nf-progress-thumb"></div>
+                    <div className={styles.hoverTime} id="hoverTime">00:00</div>
                 </div>
                 <div className={styles.timeToggle} id="timeToggle">00:00:00</div>
             </div>
