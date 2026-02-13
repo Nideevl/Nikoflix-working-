@@ -1,38 +1,28 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import ExpandedCardPortal from "@/components/browse/ExpandedCardPortal/ExpandedCardPortal";
 import { CardItem } from "@/components/browse/Card/types";
-import Image from "next/image";
-import { useBrowseContext } from "@/context/BrowseContext";
-import { useRouter } from "next/navigation";
+import Card from "@/components/browse/Card/SearchCard"; // ✅ SAME import style as carousel
+import Footer from "@/components/Footer";
 
 export default function SearchPage() {
   const params = useSearchParams();
   const q = params.get("q") || "";
-  const openId = params.get("open");
-  const router = useRouter();
 
-  const {
-    searchResults,
-    setSearchResults,
-    searchLoading,
-    setSearchLoading,
-    expandedItem,
-    setExpandedItem,
-    setOriginRect,
-    modalScrollY,
-    setModalScrollY,
-    browseScrollY, // Remember where we were in browse
-  } = useBrowseContext();
+  const [results, setResults] = useState<CardItem[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [expandedItem, setExpandedItem] = useState<CardItem | null>(null);
+  const [originRect, setOriginRect] = useState<DOMRect | null>(null);
+  const [modalScrollY, setModalScrollY] = useState(0);
 
-  /* ---------------- 🔍 FETCH SEARCH RESULTS ---------------- */
+  /* 🔎 FETCH SEARCH RESULTS */
   useEffect(() => {
     if (!q) return;
 
     const delay = setTimeout(async () => {
-      setSearchLoading(true);
+      setLoading(true);
 
       try {
         const res = await fetch(
@@ -40,120 +30,92 @@ export default function SearchPage() {
         );
 
         const data = await res.json();
-        setSearchResults(data);
+        setResults(data);
       } catch (err) {
         console.error("Search fetch error", err);
       } finally {
-        setSearchLoading(false);
+        setLoading(false);
       }
     }, 200);
 
     return () => clearTimeout(delay);
-  }, [q, setSearchResults, setSearchLoading]);
+  }, [q]);
 
-  /* ---------------- 🎭 URL → OPEN MODAL DIRECTLY ---------------- */
-  useEffect(() => {
-    async function fetchContentDetails() {
-      if (!openId) return;
-      if (expandedItem?.content_id === openId) return;
+  /* 🎬 OPEN MODAL (same pattern as carousel) */
+const handleOpen = (item: CardItem, rect: DOMRect | null) => {
+  const y = window.scrollY;
+  setModalScrollY(y);
 
-      try {
-        const base = process.env.NEXT_PUBLIC_API_BASE;
-        const res = await fetch(`${base}/content/${openId}`);
-        if (!res.ok) return;
+  setExpandedItem(item);
+  setOriginRect(rect);
+};
 
-        const contentData: CardItem = await res.json();
-        handleOpen(contentData);
-      } catch (err) {
-        console.error("Error fetching content details:", err);
-      }
-    }
+const handleClose = () => {
+  setExpandedItem(null);
+  setOriginRect(null);
 
-    fetchContentDetails();
-  }, [openId]);
+  requestAnimationFrame(() => {
+    window.scrollTo(0, modalScrollY);
+  });
+};
 
-  /* ---------------- OPEN MODAL ---------------- */
-  const handleOpen = (item: CardItem) => {
-    setModalScrollY(window.scrollY);
-    setExpandedItem(item);
-    setOriginRect(null);
 
-    router.replace(`?q=${q}&open=${item.content_id}`, { scroll: false });
-    window.scrollTo({ top: 0 });
-  };
-
-  /* ---------------- CLOSE MODAL ---------------- */
-  const handleClose = () => {
-    setExpandedItem(null);
-    setOriginRect(null);
-
-    router.replace(`?q=${q}`, { scroll: false });
-
-    if (modalScrollY) {
-      requestAnimationFrame(() => {
-        window.scrollTo(0, modalScrollY);
-      });
-    }
-  };
-
-  const isOverlayOpen = !!expandedItem;
+const isOverlayOpen = !!expandedItem;
 
   return (
     <>
-      <main
-        className={`
-          bg-[#141414] min-h-screen text-white px-14 pt-28
-          ${isOverlayOpen ? "fixed top-0 left-0 w-full" : ""}
-        `}
-        style={
-          isOverlayOpen
-            ? { top: `-${modalScrollY}px` }
-            : undefined
-        }
-      >
-        <h1 className="text-3xl font-bold mb-8">
-          {searchLoading
-            ? "Searching..."
-            : searchResults.length
-            ? `Results for "${q}"`
-            : `No results for "${q}"`}
-        </h1>
 
-        <div className="grid grid-cols-6 gap-6">
-          {searchResults.map((item) => {
-            const image = item.poster_1 || item.poster_2;
+<main
+  className={`
+    bg-[#141414] min-h-screen text-white px-14 pt-28
+    ${isOverlayOpen ? "fixed top-0 left-0 w-full" : ""}
+  `}
+  style={
+    isOverlayOpen
+      ? { top: `-${modalScrollY}px` }
+      : undefined
+  }
+>
+  {/* HEADER */}
+  <h1 className="text-3xl font-bold mb-8">
+    {loading
+      ? "Searching..."
+      : results.length
+      ? `Results for "${q}"`
+      : `No results for "${q}"`}
+  </h1>
 
-            return (
-              <button
-                key={item.content_id}
-                onClick={() => handleOpen(item)}
-                className="relative group"
-              >
-                <div className="relative w-full h-[240px] rounded overflow-hidden">
-                  {image && (
-                    <Image
-                      src={image}
-                      alt={item.title}
-                      fill
-                      className="object-cover group-hover:scale-105 transition"
-                    />
-                  )}
-                </div>
+  {/* GRID */}
+  <div className="grid grid-cols-5 gap-5">
+    {results.map((item, index) => {
+      let cardType: "" | "First" | "Last" = "";
 
-                <p className="mt-2 text-sm text-gray-200">
-                  {item.title}
-                </p>
-              </button>
-            );
-          })}
-        </div>
-      </main>
+      if (index % 5 === 0) cardType = "First";
+      else if ((index + 1) % 5 === 0) cardType = "Last";
 
-      <ExpandedCardPortal
-        item={expandedItem}
-        originRect={null}
-        onClose={handleClose}
-      />
+      return (
+        <Card
+          key={item.content_id}
+          cardType={cardType}
+          item={item}
+          isSelected={expandedItem?.content_id === item.content_id}
+          onOpen={handleOpen}
+        />
+      );
+    })}
+  </div>
+</main>
+
+{/* 🔥 IMPORTANT — OUTSIDE MAIN */}
+<ExpandedCardPortal
+  item={expandedItem}
+  originRect={originRect}
+  onClose={handleClose}
+/>
+
+<Footer />
+
+    <Footer/>
     </>
   );
 }

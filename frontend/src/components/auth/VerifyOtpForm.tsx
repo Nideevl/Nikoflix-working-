@@ -11,16 +11,68 @@ export default function VerifyOtpForm({
   goBack: () => void;
   onVerified: (email: string) => void;
 }) {
-  const [otp, setOtp] = useState("");
+  const [otpArray, setOtpArray] = useState(["", "", "", "", "", ""]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const floatLabel = (value: string) =>
-    value ? "top-2 text-xs" : "top-4 text-base";
+  const otp = otpArray.join("");
+
+  /* ---------------- OTP INPUT LOGIC ---------------- */
+
+  const handleOtpChange = (element: HTMLInputElement, index: number) => {
+    if (isNaN(Number(element.value))) return;
+
+    const newOtp = [...otpArray];
+    newOtp[index] = element.value.substring(element.value.length - 1);
+    setOtpArray(newOtp);
+    setError("");
+
+    if (element.value && element.nextSibling) {
+      (element.nextSibling as HTMLInputElement).focus();
+    }
+  };
+
+  const handleKeyDown = (
+    e: React.KeyboardEvent<HTMLInputElement>,
+    index: number
+  ) => {
+    if (e.key === "Backspace") {
+      if (!otpArray[index] && index > 0) {
+        const prev = e.currentTarget.previousSibling as HTMLInputElement;
+        prev?.focus();
+      }
+    }
+  };
+
+  const handlePaste = (
+    e: React.ClipboardEvent<HTMLInputElement>,
+    index: number
+  ) => {
+    e.preventDefault();
+
+    const pasted = e.clipboardData.getData("text").replace(/\D/g, "");
+    if (!pasted) return;
+
+    const newOtp = [...otpArray];
+
+    for (let i = 0; i < pasted.length; i++) {
+      if (index + i < newOtp.length) {
+        newOtp[index + i] = pasted[i];
+      }
+    }
+
+    setOtpArray(newOtp);
+
+    const focusIndex = Math.min(index + pasted.length, 5);
+    const inputs = document.querySelectorAll<HTMLInputElement>(".otp-input");
+    inputs[focusIndex]?.focus();
+  };
+
+  /* ---------------- VERIFY API ---------------- */
 
   async function verifyOtp() {
-    if (!otp.trim()) {
-      setError("Enter the OTP sent to your email.");
+    if (!otp.trim() || otp.length < 6) {
+      setError("Enter the 6-digit OTP sent to your email.");
       return;
     }
 
@@ -47,9 +99,7 @@ export default function VerifyOtpForm({
     onVerified(email);
   }
 
-  const inputBase =
-    "peer w-full h-14 px-5 pt-6 pb-2 rounded bg-[#0000006f] text-white border " +
-    "focus:outline-none transition-all duration-200";
+  /* ---------------- UI ---------------- */
 
   return (
     <div className="w-full max-w-[420px]">
@@ -60,39 +110,37 @@ export default function VerifyOtpForm({
       </h1>
 
       <h2 className="mb-6 text-white/70 text-lg">
-        Enter the OTP sent to <span className="text-white font-medium">{email}</span>
+        Enter the OTP sent to{" "}
+        <span className="text-white font-medium">{email}</span>
       </h2>
 
       <div className="space-y-6">
 
-        {/* OTP INPUT */}
-        <div className="relative">
-          <input
-            placeholder=" "
-            value={otp}
-            onChange={(e) => {
-              setOtp(e.target.value);
-              setError("");
-            }}
-            className={`${inputBase} ${
-              error
-                ? "border-red-600 focus:border-red-600"
-                : "border-neutral-600 focus:border-white"
-            }`}
-          />
+        {/* OTP BOX GRID */}
+        <div className="flex justify-between gap-2">
+          {otpArray.map((digit, index) => (
+            <input
+              key={index}
+              type="text"
+              maxLength={1}
+              value={digit}
+              onChange={(e) => handleOtpChange(e.target, index)}
+              onKeyDown={(e) => handleKeyDown(e, index)}
+              onPaste={(e) => handlePaste(e, index)}
+              className={`otp-input w-14 h-16 text-center text-2xl font-black bg-[#0000006f] border rounded text-white focus:outline-none transition-all
+  ${error
+                  ? "border-red-600 focus:border-red-600"
+                  : "border-neutral-600 focus:border-white"
+                }`}
 
-          <label
-            className={`absolute left-5 text-neutral-400 transition-all duration-200 pointer-events-none
-            ${floatLabel(otp)}
-            peer-focus:top-2 peer-focus:text-xs`}
-          >
-            Enter OTP
-          </label>
+              autoFocus={index === 0}
+            />
+          ))}
         </div>
 
         {/* ERROR */}
         {error && (
-          <div className="flex items-center gap-2 text-red-600 text-sm -mt-2">
+          <div className="flex items-center gap-2 text-red-600 text-sm">
             <span className="text-lg leading-none">✕</span>
             {error}
           </div>
@@ -101,8 +149,8 @@ export default function VerifyOtpForm({
         {/* VERIFY BUTTON */}
         <button
           onClick={verifyOtp}
-          disabled={loading}
-          className="w-full h-12 bg-[#e50914] rounded font-semibold text-base hover:bg-[#f6121d] transition disabled:bg-[#e50914]/60"
+          disabled={loading || otp.length < 6}
+          className="w-full h-12 bg-[#e50914] rounded font-semibold text-base hover:bg-[#f6121d] transition disabled:bg-[#e50914]/60 disabled:cursor-not-allowed"
         >
           {loading ? "Verifying..." : "Verify OTP"}
         </button>

@@ -47,7 +47,7 @@ export default function CardImage({
                         alt={item.title}
                         width={230}
                         height={140}
-                        className="relative z-10 w-full h-[19vh] object-cover"
+                        className="relative z-10 w-full h-[22.8vh] object-cover"
                         onError={() => setImgError(true)}
                     />
 
@@ -55,7 +55,7 @@ export default function CardImage({
 
 
             ) : (
-                <div className="h-[19vh] bg-black flex items-center justify-center rounded-[4px] p-4">
+                <div className="h-[22.8vh] bg-black flex items-center justify-center rounded-[4px] p-4">
                     <span className="text-neutral-300 text-gl font-medium text-center line-clamp-2 truncate">
                         {item.title}
                     </span>

@@ -106,9 +106,9 @@ export default function BrowseClient() {
 
     router.replace(`?open=${item.content_id}`, { scroll: false });
 
-    if (!rect) {
-      window.scrollTo({ top: 0 });
-    }
+    // if (!rect) {
+    //   window.scrollTo({ top: 0 });
+    // }
   };
 
   /* ---------------- CLOSE ---------------- */
