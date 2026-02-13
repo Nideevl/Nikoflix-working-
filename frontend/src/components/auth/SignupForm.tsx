@@ -2,14 +2,16 @@
 
 import { useEffect, useState } from "react";
 import generateUsername from "@/lib/usernameGenerator";
-
-export default function SignupForm({
-  switchMode,
-  onOtp,
-}: {
-  switchMode: () => void;
-  onOtp: (email: string, username: string) => void;
-}) {
+import { useRouter } from 'next/navigation'; // Note: 'next/navigation' not 'next/router'
+  
+  export default function SignupForm({
+    switchMode,
+    onOtp,
+  }: {
+    switchMode: () => void;
+    onOtp: (email: string) => void; // ✅ Simplified - no username param needed
+  }) {
+  const router = useRouter(); // Next.js equivalent of useNavigate
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
   const [usernameStatus, setUsernameStatus] = useState<
@@ -19,7 +21,9 @@ export default function SignupForm({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  // ✅ check username availability
+  const floatLabel = (value: string) =>
+    value ? "top-2 text-xs" : "top-4 text-base";
+
   async function checkUsername(name: string) {
     if (!name.trim()) return false;
 
@@ -30,7 +34,6 @@ export default function SignupForm({
     return data.available;
   }
 
-  // ✅ auto-generate username on first load
   useEffect(() => {
     async function initUsername() {
       setUsernameStatus("checking");
@@ -50,7 +53,6 @@ export default function SignupForm({
     initUsername();
   }, []);
 
-  // ✅ debounce when user types manually
   function handleUsernameChange(e: React.ChangeEvent<HTMLInputElement>) {
     const value = e.target.value;
     setUsername(value);
@@ -67,7 +69,6 @@ export default function SignupForm({
     setTypingTimer(timer);
   }
 
-  // ✅ randomize button
   async function handleGenerateUsername() {
     setUsernameStatus("checking");
     setError("");
@@ -106,84 +107,119 @@ export default function SignupForm({
         return;
       }
 
-      onOtp(email, username);
-    } catch (err) {
+      onOtp(email); // ✅ Just pass email
+    } catch {
       setError("Network error");
     } finally {
       setLoading(false);
     }
   }
 
-  return (
-    <div className="bg-black/80 w-[350px] sm:w-[450px] p-16 relative overflow-hidden">
-      {/* Red moving shine animation on right and bottom borders */}
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute right-0 bottom-[-70px] w-[2px] h-full bg-gradient-to-b from-transparent via-[#a9060f]" />
-        <div className="absolute bottom-0 right-[-70px] w-full h-[1.5px] bg-gradient-to-r from-transparent via-[#9c070f]" />
-      </div>
+  const inputBase =
+    "peer w-full h-14 px-5 pt-6 pb-2 rounded bg-[#0000006f] text-white border " +
+    "focus:outline-none transition-all duration-200";
 
-      <h2 className="text-white text-3xl font-bold mb-8 relative z-10">
-        Sign Up
+  return (
+    <div className="w-full max-w-[420px]">
+      <h1 className="text-3xl font-black mb-2 tracking-wide">
+        Create your account
+      </h1>
+
+      <h2 className="mb-6 text-white/70 text-lg">
+        Start your journey with NikoFlix.
       </h2>
 
-      <div className="space-y-4 relative z-10">
-        {/* Username Input with Random Button */}
+      <div className="space-y-6">
+        {/* USERNAME */}
         <div className="flex gap-2">
-          <input
-            value={username}
-            onChange={handleUsernameChange}
-            placeholder="Username"
-            className="flex-1 h-12 px-4 bg-[#333] text-white placeholder-gray-400 border-none focus:outline-none focus:ring-2 focus:ring-white text-sm"
-          />
+          <div className="relative flex-1">
+            <input
+              placeholder=" "
+              value={username}
+              onChange={handleUsernameChange}
+              className={`${inputBase} ${
+                usernameStatus === "taken"
+                  ? "border-red-600 focus:border-red-600"
+                  : "border-neutral-600 focus:border-white"
+              }`}
+            />
+            <label
+              className={`absolute left-5 text-neutral-400 transition-all duration-200 pointer-events-none
+              ${floatLabel(username)}
+              peer-focus:top-2 peer-focus:text-xs`}
+            >
+              Username
+            </label>
+          </div>
+
           <button
             onClick={handleGenerateUsername}
-            className="w-12 h-12 bg-[#333] text-white text-xl hover:bg-[#404040] transition duration-150 flex items-center justify-center"
-            title="Generate random username"
+            className="w-14 h-14 rounded bg-[#0000006f] border border-neutral-600 hover:border-white transition flex items-center justify-center"
           >
             🎲
           </button>
         </div>
 
-        {/* Username Status */}
+        {/* USERNAME STATUS */}
         {usernameStatus === "checking" && (
-          <p className="text-gray-400 text-sm mt-1">Checking username...</p>
+          <p className="text-neutral-400 text-sm -mt-2">Checking username...</p>
         )}
         {usernameStatus === "available" && (
-          <p className="text-green-500 text-sm mt-1">✅ Username available</p>
+          <p className="text-green-500 text-sm -mt-2">Username available</p>
         )}
         {usernameStatus === "taken" && (
-          <p className="text-[#e87c03] text-sm mt-1">
-            ❌ Username already taken
-          </p>
+          <p className="text-red-600 text-sm -mt-2">Username already taken</p>
         )}
 
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => {
-            setEmail(e.target.value);
-            setError("");
-          }}
-          className="w-full h-12 px-4 bg-[#333] text-white placeholder-gray-400 border-none focus:outline-none focus:ring-2 focus:ring-white text-sm"
-        />
+        {/* EMAIL */}
+        <div className="relative">
+          <input
+            type="email"
+            placeholder=" "
+            value={email}
+            onChange={(e) => {
+              setEmail(e.target.value);
+              setError("");
+            }}
+            className={`${inputBase} ${
+              error ? "border-red-600 focus:border-red-600" : "border-neutral-600 focus:border-white"
+            }`}
+          />
+          <label
+            className={`absolute left-5 text-neutral-400 transition-all duration-200 pointer-events-none
+            ${floatLabel(email)}
+            peer-focus:top-2 peer-focus:text-xs`}
+          >
+            Email
+          </label>
+        </div>
 
-        {error && <p className="text-[#e87c03] text-sm mt-1">{error}</p>}
+        {/* ERROR */}
+        {error && (
+          <div className="flex items-center gap-2 text-red-600 text-sm -mt-2">
+            <span className="text-lg leading-none">✕</span>
+            {error}
+          </div>
+        )}
 
+        {/* BUTTON */}
         <button
           onClick={handleSignup}
           disabled={!canSignup || loading}
-          className="w-full h-12 mt-6 bg-[#e50914] text-white font-semibold text-base hover:bg-[#f6121d] transition duration-150 disabled:bg-[#e50914]/50 disabled:cursor-not-allowed"
+          className="w-full h-12 bg-[#e50914] rounded font-semibold text-base hover:bg-[#f6121d] transition disabled:bg-[#e50914]/60"
         >
           {loading ? "Sending OTP..." : "Send OTP"}
         </button>
 
+        {/* SWITCH */}
         <p
           onClick={switchMode}
-          className="text-gray-400 text-center mt-8 cursor-pointer hover:underline"
+          className="text-gray-400 mt-8 cursor-pointer"
         >
-          <span className="text-gray-500">Already have an account?</span>{" "}
-          <span className="text-white font-medium">Sign in now</span>
+          Already have an account?{" "}
+          <span className="text-white font-medium hover:underline"  onClick={() => router.push('/auth?step=login')}>
+            Sign in now
+          </span>
         </p>
       </div>
     </div>

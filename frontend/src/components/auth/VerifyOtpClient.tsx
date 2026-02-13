@@ -10,24 +10,18 @@ export default function VerifyOtpClient() {
   const email = params.get("email") || "";
 
   if (!email) {
-    return <div style={{ color: "white", textAlign: "center" }}>No email found</div>;
+    return (
+      <div className="text-white text-center">
+        No email found
+      </div>
+    );
   }
 
   return (
-    <div style={containerStyle}>
-      <VerifyOtpForm
-        email={email}
-        goBack={() => router.push("/signup")}
-        onVerified={(mail) => router.push(`/set-password?email=${mail}`)}
-      />
-    </div>
+    <VerifyOtpForm
+      email={email}
+      goBack={() => router.push("/signup")}
+      onVerified={(mail) => router.push(`/set-password?email=${mail}`)}
+    />
   );
 }
-
-const containerStyle = {
-  minHeight: "100vh",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  background: "#fff",
-};

@@ -19,7 +19,7 @@ export default function CardImage({
 
     return (
         <div
-            className={`rounded-md overflow-hidden shadow-md`}
+            className={`rounded-[4px] overflow-hidden shadow-md`}
             onClick={onClick}
         >
             {poster && !imgError ? (
@@ -28,11 +28,11 @@ export default function CardImage({
                     alt={item.title}
                     width={230}
                     height={140}
-                    className="w-full h-[19vh] object-cover rounded-md"
+                    className="w-full h-[19vh] object-cover rounded-[4px]"
                     onError={() => setImgError(true)}
                 />
             ) : (
-                <div className="h-[19vh] bg-black flex items-center justify-center rounded-md p-4">
+                <div className="h-[19vh] bg-black flex items-center justify-center rounded-[4px] p-4">
                     <span className="text-neutral-300 text-gl font-medium text-center line-clamp-2 truncate">
                         {item.title}
                     </span>

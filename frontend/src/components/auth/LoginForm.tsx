@@ -16,9 +16,12 @@ export default function LoginForm({ switchMode, close }: LoginFormProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
+  const floatLabel = (value: string) =>
+    value ? "top-2 text-xs" : "top-4 text-base";
+
   async function handleLogin() {
     if (!identifier || !password) {
-      setError("Enter username/email and password");
+      setError("Please enter a valid email or mobile number.");
       return;
     }
 
@@ -29,10 +32,7 @@ export default function LoginForm({ switchMode, close }: LoginFormProps) {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          identifier,
-          password,
-        }),
+        body: JSON.stringify({ identifier, password }),
       });
 
       const data = await res.json();
@@ -47,69 +47,129 @@ export default function LoginForm({ switchMode, close }: LoginFormProps) {
         login(data.token);
         close();
       }
-    } catch (err) {
+    } catch {
       setError("Network error");
     } finally {
       setLoading(false);
     }
   }
 
+  /* ---------------- Netflix input styles ---------------- */
+
+  const inputWrapper = "relative w-full";
+
+  const baseInput =
+    "peer w-full h-14 px-5 pt-6 pb-2 rounded bg-[#333] text-white " +
+    "placeholder-transparent border focus:outline-none transition-all duration-200";
+
+  const borderState = error
+    ? "border-red-600 focus:border-red-600"
+    : "border-transparent focus:border-white";
+
+  const labelStyle =
+    "absolute left-5 text-gray-400 transition-all duration-200 pointer-events-none " +
+    "top-4 text-base " +
+    "peer-focus:top-2 peer-focus:text-xs " +
+    "peer-placeholder-shown:top-4 peer-placeholder-shown:text-base";
+
+  /* ------------------------------------------------------ */
+
   return (
-    <div className="bg-black/80 w-[350px] sm:w-[450px] p-16 relative overflow-hidden">
-      {/* Red moving shine animation on right and bottom borders */}
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute right-0 bottom-[-70px] w-[2px] h-full bg-gradient-to-b from-transparent via-[#a9060f]" />
-        <div className="absolute bottom-0 right-[-70px] w-full h-[1.5px] bg-gradient-to-r from-transparent via-[#9c070f]" />
-      </div>
+    <div className="w-full max-w-[420px]">
 
-      <h2 className="text-white text-3xl font-bold mb-8 relative z-10">Sign In</h2>
+      {/* Title */}
+      <h1 className="text-3xl font-black mb-2 tracking-wide">
+        Enter your info to sign in
+      </h1>
 
-      <div className="space-y-4 relative z-10">
-        <input
-          placeholder="Email or phone number"
-          value={identifier}
-          onChange={(e) => setIdentifier(e.target.value)}
-          className="w-full h-12 px-4 bg-[#333] text-white placeholder-gray-400 border-none focus:outline-none focus:ring-2 focus:ring-white text-sm"
-        />
+      <h2 className="mb-6 text-white/70 text-lg">
+        Or get started with a new account.
+      </h2>
 
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="w-full h-12 px-4 bg-[#333] text-white placeholder-gray-400 border-none focus:outline-none focus:ring-2 focus:ring-white text-sm"
-        />
+      <div className="space-y-6">
 
+        {/* EMAIL / PHONE */}
+        <div className={inputWrapper}>
+          <input
+            placeholder=" "
+            value={identifier}
+            onChange={(e) => setIdentifier(e.target.value)}
+            className={`peer w-full h-14 px-5 pt-6 pb-2 rounded bg-[#0000006f] text-white
+    border ${error ? "border-red-600" : "border-neutral-600"}
+    focus:border-white focus:outline-none transition-all duration-200`}
+          />
+
+          <label
+            className={`absolute left-5 text-neutral-400 transition-all duration-200 pointer-events-none
+    ${floatLabel(identifier)}
+    peer-focus:top-2 peer-focus:text-xs`}
+          >
+            Email or mobile number
+          </label>
+        </div>
+
+        {/* PASSWORD */}
+        <div className={inputWrapper}>
+          <div className="relative w-full">
+            <input
+              type="password"
+              placeholder=" "
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className={`peer w-full h-14 px-5 pt-6 pb-2 rounded bg-[#0000006f] text-white
+    border ${error ? "border-red-600" : "border-neutral-600"}
+    focus:border-white focus:outline-none transition-all duration-200`}
+            />
+
+            <label
+              className={`absolute left-5 text-neutral-400 transition-all duration-200 pointer-events-none
+    ${floatLabel(password)}
+    peer-focus:top-2 peer-focus:text-xs`}
+            >
+              Password
+            </label>
+          </div>
+
+        </div>
+
+        {/* ERROR MESSAGE */}
         {error && (
-          <p className="text-[#e87c03] text-sm mt-1">
+          <div className="flex items-center gap-2 text-red-600 text-sm -mt-2">
+            <span className="text-lg leading-none">✕</span>
             {error}
-          </p>
+          </div>
         )}
 
+        {/* BUTTON */}
         <button
           onClick={handleLogin}
-          disabled={loading}
-          className="w-full h-12 mt-6 bg-[#e50914] text-white font-semibold text-base hover:bg-[#f6121d] transition duration-150 disabled:bg-[#e50914]/50 disabled:cursor-not-allowed"
+          disabled={!identifier || !password || loading}
+          className="w-full h-12 bg-[#e50914] rounded font-semibold text-base hover:bg-[#f6121d] transition disabled:bg-[#e50914]/60"
         >
           {loading ? "Signing In..." : "Sign In"}
         </button>
 
-        <div className="text-gray-400 text-sm flex items-center justify-between mt-3">
-          <label className="flex items-center gap-1">
+        {/* REMEMBER + HELP */}
+        <div className="flex justify-between text-sm text-gray-400 mt-2">
+          <label className="flex items-center gap-2">
             <input type="checkbox" className="w-4 h-4 bg-gray-600" />
-            <span>Remember me</span>
+            Remember me
           </label>
+
           <a href="#" className="hover:underline">
             Need help?
           </a>
         </div>
 
+        {/* SIGNUP */}
         <p
           onClick={switchMode}
-          className="text-gray-400 text-center mt-8 cursor-pointer hover:underline"
+          className="text-gray-400 mt-8 cursor-pointer"
         >
-          <span className="text-gray-500">New to Netflix?</span>{" "}
-          <span className="text-white font-medium">Sign up now</span>
+          New to Netflix?{" "}
+          <span className="text-white font-medium hover:underline">
+            Sign up now
+          </span>
         </p>
       </div>
     </div>

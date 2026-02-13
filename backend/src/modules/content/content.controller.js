@@ -77,6 +77,34 @@ export const getContentById = async (req, res) => {
   }
 };
 
+export async function getSearch(req, res) {
+  try {
+    const q = req.query.q;
+
+    if (!q || !q.trim()) {
+      return res.json([]);
+    }
+
+    const result = `
+      SELECT DISTINCT c.*
+      FROM content c
+      LEFT JOIN content_genres cg ON cg.content_id = c.content_id
+      LEFT JOIN genres g ON g.genre_id = cg.genre_id
+      WHERE 
+        LOWER(c.title) LIKE LOWER('%' || $1 || '%')
+        OR LOWER(c.description) LIKE LOWER('%' || $1 || '%')
+        OR LOWER(g.name) LIKE LOWER('%' || $1 || '%')
+      LIMIT 60;
+    `;
+
+    const { rows } = await query(result, [q]);
+
+    res.json(rows);
+  } catch (err) {
+    console.error("Search error:", err);
+    res.status(500).json({ error: "Search failed" });
+  }
+}
 
 export const getEpisodesBySeries = async (req, res) => {
   const { contentId } = req.params;

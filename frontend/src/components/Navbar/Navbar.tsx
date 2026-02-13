@@ -39,7 +39,7 @@
           <div className="flex items-center gap-8 pl-7">
 
             {/* LOGO (Netflix style, not text) */}
-            <Link href="/browse" className="flex items-center pr-5">
+            <Link href="/browse" className="flex items-center pr-5 pt-1">
 
               <Image
                 src="/logo.svg"

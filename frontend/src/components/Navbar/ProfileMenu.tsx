@@ -12,9 +12,11 @@ import {
   LogIn,
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
+import { useRouter } from 'next/navigation';
 
 export default function ProfileMenu() {
   const { token, loading, logout } = useAuth();
+  const router = useRouter(); // Next.js equivalent of useNavigate
   const [open, setOpen] = useState(false);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -33,7 +35,7 @@ export default function ProfileMenu() {
   if (loading || !token) {
     return (
       <Link
-        href="/login"
+        href='/auth?step=login'
         className="flex items-center gap-2 text-white hover:text-red-500 transition animate-pulse"
       >
         <span className="text-sm font-medium">Sign In</span>

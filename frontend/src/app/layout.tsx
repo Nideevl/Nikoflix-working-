@@ -1,6 +1,8 @@
 import "./globals.css";
 import NavbarWrapper from "@/components/Navbar/NavbarWrapper";
 import Providers from "./providers";
+import { BrowseProvider } from "@/context/BrowseContext";
+import DemoAccessGuard from "@/components/DemoAccessGuard";
 
 export default function RootLayout({
   children,
@@ -11,8 +13,12 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <Providers>
-          <NavbarWrapper />
-          {children}
+          <BrowseProvider>
+            <DemoAccessGuard>
+              <NavbarWrapper />
+              {children}
+            </DemoAccessGuard>
+          </BrowseProvider>
         </Providers>
       </body>
     </html>
