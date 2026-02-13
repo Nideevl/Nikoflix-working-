@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from "next/link";
 import Image from "next/image";
-import { Lock, Play, Zap, Sparkles, X, Shield } from "lucide-react";
+import { Lock, Play, Zap, X, Shield, Server, Database, Github, CreditCard, Cpu } from "lucide-react";
 
 export default function LandingPage() {
   const router = useRouter();
@@ -129,8 +129,8 @@ export default function LandingPage() {
             {/* Demo Access Badge */}
             {!isChecking && (
               <div className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full border text-[10px] font-black uppercase tracking-[0.2em] transition-all ${hasAccess
-                  ? 'bg-green-500/5 border-green-500/20 text-green-500'
-                  : 'bg-red-600/5 border-red-600/20 text-red-500'
+                ? 'bg-green-500/5 border-green-500/20 text-green-500'
+                : 'bg-red-600/5 border-red-600/20 text-red-500'
                 }`}>
                 {hasAccess ? <Shield size={12} strokeWidth={3} /> : <Lock size={12} strokeWidth={3} />}
                 {hasAccess ? 'Access Verified' : 'Private Beta Environment'}
@@ -182,7 +182,7 @@ export default function LandingPage() {
               {/* Video Processing Pipeline */}
               <div className="bg-[#0a0a0a] p-8 hover:bg-[#0f0f0f] transition-colors group">
                 <div className="text-red-600 mb-6 group-hover:scale-110 group-hover:text-red-500 transition-all duration-300">
-                  <Play size={24} />
+                  <Cpu size={24} />
                 </div>
                 <h3 className="text-lg font-black text-white mb-3 uppercase tracking-tight">
                   Automated Pipeline
@@ -208,7 +208,7 @@ export default function LandingPage() {
               {/* Cloud Infrastructure */}
               <div className="bg-[#0a0a0a] p-8 hover:bg-[#0f0f0f] transition-colors group">
                 <div className="text-red-600 mb-6 group-hover:scale-110 group-hover:text-red-500 transition-all duration-300">
-                  <Shield size={24} />
+                  <Server size={24} />
                 </div>
                 <h3 className="text-lg font-black text-white mb-3 uppercase tracking-tight">
                   Oracle Cloud
@@ -221,7 +221,7 @@ export default function LandingPage() {
               {/* Secure Payments */}
               <div className="bg-[#0a0a0a] p-8 hover:bg-[#0f0f0f] transition-colors group">
                 <div className="text-red-600 mb-6 group-hover:scale-110 group-hover:text-red-500 transition-all duration-300">
-                  <Lock size={24} />
+                  <CreditCard size={24} />
                 </div>
                 <h3 className="text-lg font-black text-white mb-3 uppercase tracking-tight">
                   Secure Payments
@@ -234,7 +234,7 @@ export default function LandingPage() {
               {/* Database Architecture */}
               <div className="bg-[#0a0a0a] p-8 hover:bg-[#0f0f0f] transition-colors group">
                 <div className="text-red-600 mb-6 group-hover:scale-110 group-hover:text-red-500 transition-all duration-300">
-                  <Sparkles size={24} />
+                  <Database size={24} />
                 </div>
                 <h3 className="text-lg font-black text-white mb-3 uppercase tracking-tight">
                   PostgreSQL Core
@@ -247,7 +247,7 @@ export default function LandingPage() {
               {/* CI/CD */}
               <div className="bg-[#0a0a0a] p-8 hover:bg-[#0f0f0f] transition-colors group">
                 <div className="text-red-600 mb-6 group-hover:scale-110 group-hover:text-red-500 transition-all duration-300">
-                  <Zap size={24} />
+                  <Github size={24} />
                 </div>
                 <h3 className="text-lg font-black text-white mb-3 uppercase tracking-tight">
                   CI/CD Automation
@@ -362,8 +362,8 @@ export default function LandingPage() {
                 onClick={handleDemoCodeSubmit}
                 disabled={!demoCode.trim()}
                 className={`w-full py-4 rounded-sm font-black transition-all active:translate-y-px uppercase tracking-wide ${demoCode.trim()
-                    ? 'bg-red-600 hover:bg-red-500 text-white'
-                    : 'bg-gray-800 text-gray-500 cursor-not-allowed'
+                  ? 'bg-red-600 hover:bg-red-500 text-white'
+                  : 'bg-gray-800 text-gray-500 cursor-not-allowed'
                   }`}
               >
                 Verify
