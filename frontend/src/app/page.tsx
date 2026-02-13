@@ -117,6 +117,19 @@ export default function LandingPage() {
     nextInput?.focus();
   };
 
+useEffect(() => {
+  if (showDemoModal) {
+    document.documentElement.style.overflow = "hidden";
+  } else {
+    document.documentElement.style.overflow = "";
+  }
+
+  return () => {
+    document.documentElement.style.overflow = "";
+  };
+}, [showDemoModal]);
+
+
 
   return (
     <>
@@ -213,7 +226,7 @@ export default function LandingPage() {
                 onClick={() => handleProtectedNavigation('/browse')}
                 className="group px-10 py-4  bg-red-600 hover:bg-red-700 text-white text-lg font-black rounded-sm transition-all active:scale-95 flex items-center gap-3 w-full sm:w-auto justify-center uppercase tracking-tight"
               >
-                <Play size={20} fill="white" />
+                <Play size={24} fill="white" />
                 Start Watching
               </button>
             </div>
@@ -234,7 +247,7 @@ export default function LandingPage() {
 
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-px bg-white/5 border border-white/5 rounded-xl overflow-hidden shadow-2xl">
               {/* Video Processing Pipeline */}
-              <div className="bg-[#0a0a0a] p-8 hover:bg-[#0f0f0f] transition-colors group">
+              <div className="bg-[#0a0a0a]/80 p-8 transition-colors group">
                 <div className="text-red-600 mb-6 group-hover:scale-110 group-hover:text-red-500 transition-all duration-300">
                   <Cpu size={24} />
                 </div>
@@ -247,7 +260,7 @@ export default function LandingPage() {
               </div>
 
               {/* Global CDN */}
-              <div className="bg-[#0a0a0a] p-8 hover:bg-[#0f0f0f] transition-colors group">
+              <div className="bg-[#0a0a0a]/80 p-8 transition-colors group">
                 <div className="text-red-600 mb-6 group-hover:scale-110 group-hover:text-red-500 transition-all duration-300">
                   <Zap size={24} />
                 </div>
@@ -260,7 +273,7 @@ export default function LandingPage() {
               </div>
 
               {/* Cloud Infrastructure */}
-              <div className="bg-[#0a0a0a] p-8 hover:bg-[#0f0f0f] transition-colors group">
+              <div className="bg-[#0a0a0a]/80 p-8 transition-colors group">
                 <div className="text-red-600 mb-6 group-hover:scale-110 group-hover:text-red-500 transition-all duration-300">
                   <Server size={24} />
                 </div>
@@ -273,7 +286,7 @@ export default function LandingPage() {
               </div>
 
               {/* Secure Payments */}
-              <div className="bg-[#0a0a0a] p-8 hover:bg-[#0f0f0f] transition-colors group">
+              <div className="bg-[#0a0a0a]/80 p-8 transition-colors group">
                 <div className="text-red-600 mb-6 group-hover:scale-110 group-hover:text-red-500 transition-all duration-300">
                   <CreditCard size={24} />
                 </div>
@@ -286,7 +299,7 @@ export default function LandingPage() {
               </div>
 
               {/* Database Architecture */}
-              <div className="bg-[#0a0a0a] p-8 hover:bg-[#0f0f0f] transition-colors group">
+              <div className="bg-[#0a0a0a]/80 p-8 transition-colors group">
                 <div className="text-red-600 mb-6 group-hover:scale-110 group-hover:text-red-500 transition-all duration-300">
                   <Database size={24} />
                 </div>
@@ -299,7 +312,7 @@ export default function LandingPage() {
               </div>
 
               {/* CI/CD */}
-              <div className="bg-[#0a0a0a] p-8 hover:bg-[#0f0f0f] transition-colors group">
+              <div className="bg-[#0a0a0a]/80 p-8 transition-colors group">
                 <div className="text-red-600 mb-6 group-hover:scale-110 group-hover:text-red-500 transition-all duration-300">
                   <Github size={24} />
                 </div>
