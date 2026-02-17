@@ -3,6 +3,7 @@ import NavbarWrapper from "@/components/Navbar/NavbarWrapper";
 import Providers from "./providers";
 import { BrowseProvider } from "@/context/BrowseContext";
 import DemoAccessGuard from "@/components/DemoAccessGuard";
+import { Analytics } from "@vercel/analytics/next"
 
 export default function RootLayout({
   children,
@@ -20,6 +21,7 @@ export default function RootLayout({
             <DemoAccessGuard>
               <NavbarWrapper />
               {children}
+              <Analytics/>
             </DemoAccessGuard>
           </BrowseProvider>
         </Providers>
