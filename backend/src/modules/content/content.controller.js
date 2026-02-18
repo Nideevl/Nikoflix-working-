@@ -85,19 +85,63 @@ export async function getSearch(req, res) {
       return res.json([]);
     }
 
-    const result = `
-      SELECT DISTINCT c.*
+    const sql = `
+      SELECT
+        c.content_id,
+        c.title,
+        c.description,
+        c.type,
+        c.poster_1,
+        c.poster_2,
+        c.imdb_rating,
+        c.release_date,
+        c.ingest_status,
+
+        ARRAY_AGG(DISTINCT g.name) AS genres,
+
+        CASE
+          WHEN c.type = 'movie' THEN m.duration::text
+          WHEN c.type = 'series' THEN COUNT(e.episode_id)::text
+        END AS duration_or_episode_count,
+
+        COALESCE(m.movie_id, first_ep.episode_id) AS movie_or_episode_id
+
       FROM content c
+
       LEFT JOIN content_genres cg ON cg.content_id = c.content_id
       LEFT JOIN genres g ON g.genre_id = cg.genre_id
+
+      -- movie join
+      LEFT JOIN movies m ON m.content_id = c.content_id
+
+      -- all episodes for counting
+      LEFT JOIN episodes e ON e.content_id = c.content_id
+
+      -- first episode for series
+      LEFT JOIN LATERAL (
+        SELECT e2.episode_id
+        FROM episodes e2
+        WHERE e2.content_id = c.content_id
+        ORDER BY e2.episode_number ASC
+        LIMIT 1
+      ) first_ep ON TRUE
+
       WHERE 
         LOWER(c.title) LIKE LOWER('%' || $1 || '%')
         OR LOWER(c.description) LIKE LOWER('%' || $1 || '%')
         OR LOWER(g.name) LIKE LOWER('%' || $1 || '%')
+
+      GROUP BY
+        c.content_id,
+        m.movie_id,
+        m.duration,
+        first_ep.episode_id
+
+      ORDER BY RANDOM()
       LIMIT 60;
     `;
 
-    const { rows } = await query(result, [q]);
+    const { rows } = await query(sql, [q]);
 
     res.json(rows);
   } catch (err) {
@@ -105,6 +149,7 @@ export async function getSearch(req, res) {
     res.status(500).json({ error: "Search failed" });
   }
 }
+
 
 export const getEpisodesBySeries = async (req, res) => {
   const { contentId } = req.params;
