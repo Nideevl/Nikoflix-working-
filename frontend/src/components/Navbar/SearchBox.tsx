@@ -18,11 +18,15 @@ export default function SearchBox() {
   /* ---------------- INITIALIZE FROM URL ---------------- */
   useEffect(() => {
     const q = searchParams.get("q");
-    if (q) {
+    if (q && pathname === "/search") {
       setQuery(q);
       setOpen(true);
+    } else if (pathname !== "/search") {
+      // Clear search when navigating away from search page
+      setQuery("");
+      setOpen(false);
     }
-  }, []); // Only on mount
+  }, [pathname, searchParams]);
 
   /* ---------------- FOCUS INPUT ---------------- */
   useEffect(() => {
@@ -45,8 +49,14 @@ export default function SearchBox() {
     return () => document.removeEventListener("mousedown", handleClick);
   }, [query]);
 
-  /* ---------------- 🔥 LIVE SEARCH ---------------- */
+  /* ---------------- 🔥 LIVE SEARCH (only on /search page) ---------------- */
   useEffect(() => {
+    // CRITICAL: Only perform search navigation if we're already on /search page
+    // This prevents hijacking navigation from other pages
+    if (pathname !== "/search" && query.trim().length === 0) {
+      return; // Don't navigate if not on search page and no query
+    }
+
     const delay = setTimeout(() => {
       const trimmed = query.trim();
 
@@ -54,13 +64,13 @@ export default function SearchBox() {
         // ✅ Navigate to /search route
         router.push(`/search?q=${encodeURIComponent(trimmed)}`);
       } else if (pathname === "/search") {
-        // ✅ Go back to /browse when cleared
+        // ✅ Go back to /browse when cleared on search page
         router.push("/browse");
       }
     }, 250);
 
     return () => clearTimeout(delay);
-  }, [query, pathname, router]);
+  }, [query]); // Removed pathname and router from dependencies to prevent re-triggering
 
   /* ---------------- ❌ CLEAR SEARCH ---------------- */
   const clearSearch = () => {
@@ -71,25 +81,6 @@ export default function SearchBox() {
       router.push("/browse");
     }
   };
-
-  /* ---------------- HANDLE BROWSER BACK BUTTON ---------------- */
-  useEffect(() => {
-    const handlePopState = () => {
-      const params = new URLSearchParams(window.location.search);
-      const q = params.get("q");
-      
-      if (q) {
-        setQuery(q);
-        setOpen(true);
-      } else {
-        setQuery("");
-        setOpen(false);
-      }
-    };
-
-    window.addEventListener("popstate", handlePopState);
-    return () => window.removeEventListener("popstate", handlePopState);
-  }, []);
 
   /* ---------------- UI ---------------- */
   return (
