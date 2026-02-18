@@ -91,7 +91,7 @@ export default function BrowseClient() {
       setRows([
         { title: "Trending Now", content: trending },
         { title: "Top Series", content: series },
-        { title: "Because you watched…", content: recommended },
+        { title: "You Might Like these too…", content: recommended },
       ]);
     }
 
