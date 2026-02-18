@@ -7,16 +7,27 @@ import forward from "../../../../public/icons/forward.ico";
 import backward from "../../../../public/icons/backward.ico";
 import Image from "next/image"
 
+/* Netflix-style skeleton card for carousel */
+function SkeletonCard() {
+    return (
+        <div className={styles.skeletonCard}>
+            <div className={styles.shimmer} />
+        </div>
+    );
+}
+
 export default function ContentCarousel({
     title = "",
     items = [],
-    openId,              // ✅ ADD THIS
-    onOpen
+    openId,
+    onOpen,
+    loading = false  // ✅ NEW: loading prop
 }: {
     title?: string;
     items?: any[];
     openId: string | null;
     onOpen: (item: any, rect: DOMRect | null) => void;
+    loading?: boolean;  // ✅ NEW
 }) {
 
     const baseItems = React.useMemo(() => {
@@ -40,13 +51,12 @@ export default function ContentCarousel({
 
         return normalized.map((item, index) => ({
             ...item,
-            position: index + 1, // 1-indexed positions (kept exactly as before)
+            position: index + 1,
         }));
     }, [items]);
 
     const total = baseItems.length;
     const [visibleIndices, setVisibleIndices] = React.useState(() => {
-        // Initial state: render items 0-12 (13 items)
         const initial = [];
         for (let i = 0; i < 13; i++) initial.push(i);
         return initial;
@@ -78,8 +88,6 @@ export default function ContentCarousel({
         const sliderContent = sliderRef.current;
 
         if (!hasMovedYet) {
-            // First click: special behavior
-            // Add item 35 to left, add next 6 items after the visible window to the right
             const nextItems = Array.from({ length: 6 }, (_, i) => (visibleIndices[visibleIndices.length - 1] + 1 + i) % total);
             const newIndices = [35, ...visibleIndices, ...nextItems];
             setVisibleIndices(newIndices);
@@ -93,8 +101,6 @@ export default function ContentCarousel({
                 });
             }
         } else {
-            // Subsequent clicks: normal scroll
-            // Remove 6 from left, add 6 to right
             const newIndices = [
                 ...visibleIndices.slice(6),
                 ...Array.from({ length: 6 }, (_, i) => (visibleIndices[visibleIndices.length - 1] + 1 + i) % total),
@@ -124,7 +130,6 @@ export default function ContentCarousel({
         if (isTransitioning) return;
         const sliderContent = sliderRef.current;
 
-        // Remove 6 from right, add 6 to left
         const newIndices = [
             ...Array.from({ length: 6 }, (_, i) => (visibleIndices[0] - 6 + i + total) % total),
             ...visibleIndices.slice(0, -6),
@@ -154,7 +159,7 @@ export default function ContentCarousel({
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
         >
-            {/* ✅ ROW HEADING (THIS WAS MISSING) */}
+            {/* Row title */}
             {title && (
                 <h2 className={styles.rowTitle}>
                     {title}
@@ -163,45 +168,52 @@ export default function ContentCarousel({
 
             {/* Slider */}
             <div className={styles.sliderContainer}>
-                <div
-                    ref={sliderRef}
-                    className={styles.sliderContent}
-                    style={{
-                        marginLeft: `${marginOffset}vw`,
-                        transform: `translateX(${translateOffset}vw)`,
-                    }}
-                >
-                    {currentItems.map((item) => {
-                        const position = item.position;
-                        let cardType: "" | "First" | "Last" = "";
-                        if ((position - 1) % 6 === 0) cardType = "First";
-                        else if (position % 6 === 0) cardType = "Last";
+                {loading ? (
+                    /* Show skeleton cards while loading */
+                    <div className={styles.skeletonRow}>
+                        {Array.from({ length: 6 }).map((_, i) => (
+                            <SkeletonCard key={i} />
+                        ))}
+                    </div>
+                ) : (
+                    <>
+                        <div
+                            ref={sliderRef}
+                            className={styles.sliderContent}
+                            style={{
+                                marginLeft: `${marginOffset}vw`,
+                                transform: `translateX(${translateOffset}vw)`,
+                            }}
+                        >
+                            {currentItems.map((item) => {
+                                const position = item.position;
+                                let cardType: "" | "First" | "Last" = "";
+                                if ((position - 1) % 6 === 0) cardType = "First";
+                                else if (position % 6 === 0) cardType = "Last";
 
-                        return (
-                            <div key={item.id} data-card-position={position}>
-                                <Card
-                                    cardType={cardType}
-                                    item={item}
-                                    isSelected={openId === item.content_id}
-                                    onOpen={onOpen}
-                                />
-                            </div>
-                        );
-                    })}
-                </div>
-            {hasMovedYet && (
-                <button onClick={goPrev} className={styles.prevButton}>
-                    <Image className={styles.shiftUp} src={backward} alt="pev" width={23} height={23} />
-                </button>
-            )}
-
-            <button onClick={goNext} className={styles.nextButton}>
-                <Image className={styles.shiftUp} src={forward} alt="next" width={23} height={23} />
-            </button>
+                                return (
+                                    <div key={item.id} data-card-position={position}>
+                                        <Card
+                                            cardType={cardType}
+                                            item={item}
+                                            isSelected={openId === item.content_id}
+                                            onOpen={onOpen}
+                                        />
+                                    </div>
+                                );
+                            })}
+                        </div>
+                        {hasMovedYet && (
+                            <button onClick={goPrev} className={styles.prevButton}>
+                                <Image className={styles.shiftUp} src={backward} alt="prev" width={23} height={23} />
+                            </button>
+                        )}
+                        <button onClick={goNext} className={styles.nextButton}>
+                            <Image className={styles.shiftUp} src={forward} alt="next" width={23} height={23} />
+                        </button>
+                    </>
+                )}
             </div>
-
-            {/* Navigation */}
         </div>
     );
-
 }

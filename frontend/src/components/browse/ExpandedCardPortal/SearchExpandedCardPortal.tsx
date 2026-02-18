@@ -139,7 +139,7 @@
             transform: originRect
               ? animate
                 ? `translate(40%) scale(1)`
-                : `translate(${XaPx}px, ${Ya - 6.7}vh) scale(${scale})`
+                : `translate(${XaPx}px, ${Ya - 8}vh) scale(${scale})`
               : animate
                 ? `translate(40%) scale(1)`
                 : `translate(45%) scale(0.90)`,

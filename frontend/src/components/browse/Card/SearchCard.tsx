@@ -3,7 +3,7 @@
 import { useState, useRef } from "react";
 import { CardProps } from "./types";
 import CardImage from "./SearchImage";
-import ExpandedPreview from "./ExpandedPreview";
+import ExpandedPreview from "./SearchExpandedPreview";
 
 export default function Card({
   item,
@@ -39,8 +39,7 @@ export default function Card({
   return (
     <div
       ref={cardRef}
-      className={`relative flex-none w-[17.8vw] cursor-pointer"}
-`}
+      className="relative flex-none w-[17.8vw] cursor-pointer"
       onMouseEnter={handleEnter}
       onMouseLeave={handleLeave}
       onClick={handleLeave}

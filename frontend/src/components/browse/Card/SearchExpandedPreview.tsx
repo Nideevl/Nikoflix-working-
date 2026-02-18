@@ -125,7 +125,7 @@ export default function ExpandedPreview({
                 background: "#141414",
 
                 transform: animate
-                    ? "translateY(-22.8vh) scale(1.015)"
+                    ? "translateY(-15.77vh) scale(1.01)"
                     : "translateY(0vh) scale(0.68)",
 
                 opacity: animate ? 1 : 0.4,
@@ -143,7 +143,7 @@ export default function ExpandedPreview({
             <div
                 className="relative bg-black"
                 style={{
-                    height: "28vh",
+                    height: "34.16vh",
                     opacity: imageOpacity,
                     transition: "opacity 150ms ease",
                 }}

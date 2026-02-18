@@ -31,17 +31,19 @@ export default function BrowseClient() {
   /* ---------------- 📍 SAVE SCROLL BEFORE LEAVING ---------------- */
   useEffect(() => {
     const handleScroll = () => {
+      const currentScroll = window.scrollY;
       if (!expandedItem) {
-        setBrowseScrollY(window.scrollY);
+        setBrowseScrollY(currentScroll);
       }
     };
 
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
-  }, [expandedItem, setBrowseScrollY]);
+  }, [expandedItem, setBrowseScrollY, browseScrollY]);
 
   /* ---------------- 📍 RESTORE SCROLL ON MOUNT ---------------- */
   useEffect(() => {
+
     if (browseScrollY > 0) {
       requestAnimationFrame(() => {
         window.scrollTo(0, browseScrollY);
@@ -52,6 +54,7 @@ export default function BrowseClient() {
   /* ---------------- URL → OPEN MODAL DIRECTLY ---------------- */
   useEffect(() => {
     async function fetchContentDetails() {
+
       if (!openId) return;
       if (expandedItem?.content_id === openId) return;
 
@@ -61,6 +64,7 @@ export default function BrowseClient() {
         if (!res.ok) return;
 
         const contentData: CardItem = await res.json();
+
         handleOpen(contentData, null);
       } catch (err) {
         console.error("Error fetching content details:", err);
@@ -96,19 +100,15 @@ export default function BrowseClient() {
 
   /* ---------------- OPEN ---------------- */
   const handleOpen = (item: CardItem, rect: DOMRect | null) => {
-    if (rect) {
+ 
       const y = window.scrollY;
       setModalScrollY(y);
-    }
+    
 
     setExpandedItem(item);
     setOriginRect(rect);
 
     router.replace(`?open=${item.content_id}`, { scroll: false });
-
-    // if (!rect) {
-    //   window.scrollTo({ top: 0 });
-    // }
   };
 
   /* ---------------- CLOSE ---------------- */
@@ -123,6 +123,7 @@ export default function BrowseClient() {
         window.scrollTo(0, modalScrollY);
       });
     }
+     setModalScrollY(0);
   };
 
   const isOverlayOpen = !!expandedItem;
