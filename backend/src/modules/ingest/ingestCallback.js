@@ -4,7 +4,11 @@ import { query } from "../../config/db.js";
 const router = express.Router();
 
 router.post("/ingest/callback", async (req, res) => {
-  const { movie_id, status } = req.body;
+  const { content_id: movie_id, status } = req.body;
+
+  if (!movie_id || !status) {
+    return res.status(400).json({ error: "Missing fields" });
+  }
 
   if (!movie_id || !status) {
     return res.status(400).json({ error: "Missing fields" });
