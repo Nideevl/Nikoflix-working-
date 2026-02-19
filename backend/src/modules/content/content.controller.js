@@ -150,7 +150,6 @@ export async function getSearch(req, res) {
   }
 }
 
-
 export const getEpisodesBySeries = async (req, res) => {
   const { contentId } = req.params;
 
@@ -257,6 +256,63 @@ LIMIT $${values.length + 1}
   }
 };
 
+export const getReadyContent = async (req, res) => {
+  try {
+    const sql = `
+      SELECT
+        c.content_id,
+        c.title,
+        c.description,
+        c.type,
+        c.poster_1,
+        c.poster_2,
+        c.imdb_rating,
+        c.release_date,
+        c.ingest_status,
+
+        ARRAY_AGG(DISTINCT g.name) AS genres,
+
+        CASE
+          WHEN c.type = 'movie' THEN m.duration::text
+          WHEN c.type = 'series' THEN COUNT(e.episode_id)::text
+        END AS duration_or_episode_count,
+
+        COALESCE(m.movie_id, first_ep.episode_id) AS movie_or_episode_id
+
+      FROM content c
+
+      LEFT JOIN content_genres cg ON cg.content_id = c.content_id
+      LEFT JOIN genres g ON g.genre_id = cg.genre_id
+      LEFT JOIN movies m ON m.content_id = c.content_id
+      LEFT JOIN episodes e ON e.content_id = c.content_id
+      LEFT JOIN LATERAL (
+        SELECT e2.episode_id
+        FROM episodes e2
+        WHERE e2.content_id = c.content_id
+        ORDER BY e2.episode_number ASC
+        LIMIT 1
+      ) first_ep ON TRUE
+
+      WHERE c.ingest_status = 'READY'
+
+      GROUP BY
+        c.content_id,
+        m.movie_id,
+        m.duration,
+        first_ep.episode_id
+
+      ORDER BY c.release_date DESC;
+    `;
+
+    const { rows } = await query(sql, []);
+    console.log("here ",rows)
+
+    res.json(rows);
+  } catch (err) {
+    console.error("getReadyContent error:", err);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
 
 export const getContentCollection = async (req, res) => {
   const { contentId } = req.params;

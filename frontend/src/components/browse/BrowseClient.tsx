@@ -75,6 +75,7 @@ export default function BrowseClient() {
   }, [openId]);
 
   /* ---------------- FETCH ROWS (ONCE GLOBALLY) ---------------- */
+  /* ---------------- FETCH ROWS (ONCE GLOBALLY) ---------------- */
   useEffect(() => {
     if (hasInitialized.current) return;
     hasInitialized.current = true;
@@ -82,16 +83,18 @@ export default function BrowseClient() {
     async function fetchRows() {
       const base = process.env.NEXT_PUBLIC_API_BASE;
 
-      const [trending, series, recommended] = await Promise.all([
+      const [trending, series, recommended, readyContent] = await Promise.all([
         fetch(`${base}/content/row?count=36&type=movie`).then(r => r.json()),
         fetch(`${base}/content/row?count=36&type=movie`).then(r => r.json()),
         fetch(`${base}/content/row?count=36&type=movie`).then(r => r.json()),
+        fetch(`${base}/content/ready`).then(r => r.json()),  // 👈 new
       ]);
 
       setRows([
+        { title: "Ready to Watch", content: readyContent },  // 👈 new
         { title: "Trending Now", content: trending },
-        { title: "Top Series", content: series },
-        { title: "You Might Like these too…", content: recommended },
+        { title: "You Might Like these too…", content: series },
+        { title: "No Titles left", content: recommended },
       ]);
     }
 
@@ -100,10 +103,10 @@ export default function BrowseClient() {
 
   /* ---------------- OPEN ---------------- */
   const handleOpen = (item: CardItem, rect: DOMRect | null) => {
- 
-      const y = window.scrollY;
-      setModalScrollY(y);
-    
+
+    const y = window.scrollY;
+    setModalScrollY(y);
+
 
     setExpandedItem(item);
     setOriginRect(rect);
@@ -123,7 +126,7 @@ export default function BrowseClient() {
         window.scrollTo(0, modalScrollY);
       });
     }
-     setModalScrollY(0);
+    setModalScrollY(0);
   };
 
   const isOverlayOpen = !!expandedItem;
