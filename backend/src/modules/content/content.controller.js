@@ -305,8 +305,6 @@ export const getReadyContent = async (req, res) => {
     `;
 
     const { rows } = await query(sql, []);
-    console.log("here ",rows)
-
     res.json(rows);
   } catch (err) {
     console.error("getReadyContent error:", err);
