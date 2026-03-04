@@ -99,7 +99,7 @@ router.get("/episode/:episode_id", playbackAccessMiddleware, async (req, res) =>
   ).catch(() => { });
 
   if (ingest_status === "READY") {
-    const path = `/episode/${episode_id}/master.m3u8`;
+    const path = `/episode/${episode_id}/`;
     const signedUrl = generateBunnySignedUrl(path);
 
     return res.json({

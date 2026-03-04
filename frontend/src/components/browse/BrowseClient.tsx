@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import Billboard from "@/components/browse/Billboard";
 import ContentCarousel from "@/components/browse/ContentCarousel/ContentCarousel";
 import ExpandedCardPortal from "@/components/browse/ExpandedCardPortal/ExpandedCardPortal";
+import ReadyCarousel from "@/components/browse/ReadyCarousel/ReadyCarousel";
 import { CardItem } from "@/components/browse/Card/types";
 import { useRouter, useSearchParams } from "next/navigation";
 import Footer from "@/components/Footer";
@@ -75,7 +76,6 @@ export default function BrowseClient() {
   }, [openId]);
 
   /* ---------------- FETCH ROWS (ONCE GLOBALLY) ---------------- */
-  /* ---------------- FETCH ROWS (ONCE GLOBALLY) ---------------- */
   useEffect(() => {
     if (hasInitialized.current) return;
     hasInitialized.current = true;
@@ -145,8 +145,15 @@ export default function BrowseClient() {
         }
       >
         <Billboard onOpen={handleOpen} />
+        <ReadyCarousel
+          title="Ready to Watch"
+          items={rows[0]?.content}   // the readyContent row
+          openId={openId}
+          onOpen={handleOpen}
+          loading={rows.length === 0}
+        />
 
-        {rows.map((row, index) => (
+        {rows.slice(1).map((row, index) => (
           <ContentCarousel
             key={`${row.title}-${index}`}
             title={row.title}
